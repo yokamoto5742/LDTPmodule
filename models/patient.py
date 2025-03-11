@@ -1,6 +1,3 @@
-"""
-患者情報を表すモデルを提供するモジュール
-"""
 from sqlalchemy import Column, Integer, String, Float, Date, Boolean
 from .base import Base
 

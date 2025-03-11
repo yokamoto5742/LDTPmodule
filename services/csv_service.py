@@ -4,8 +4,8 @@ import re
 from datetime import datetime
 import pandas as pd
 import configparser
-from ..models.patient import PatientInfo
-from ..database.connection import get_session
+from models.patient import PatientInfo
+from database.connection import get_session
 
 
 class CSVService:

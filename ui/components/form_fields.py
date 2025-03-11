@@ -1,6 +1,6 @@
 import configparser
 import flet as ft
-from ...services.treatment_plan import DropdownItems
+from services.treatment_plan import DropdownItems
 
 # 設定ファイルの読み込み
 config = configparser.ConfigParser()

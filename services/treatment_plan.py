@@ -2,7 +2,7 @@ import os
 import configparser
 from datetime import datetime
 from openpyxl import load_workbook
-from ..services.barcode_service import BarcodeService
+from services.barcode_service import BarcodeService
 
 
 class TreatmentPlanGenerator:

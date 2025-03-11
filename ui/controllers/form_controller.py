@@ -1,12 +1,11 @@
 from datetime import datetime
 import flet as ft
-from ...models.patient import PatientInfo
-from ...models.template import MainDisease
-from ...database.repositories.patient_repo import PatientRepository
-from ...database.repositories.template_repo import TemplateRepository
-from ...database.connection import get_session
-from ..components.dialogs import DialogManager
-
+from models.patient import PatientInfo
+from models.template import MainDisease
+from database.repositories.patient_repo import PatientRepository
+from database.repositories.template_repo import TemplateRepository
+from database.connection import get_session
+from ui.components.dialogs import DialogManager
 
 class FormController:
     """

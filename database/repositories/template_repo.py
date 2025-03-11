@@ -1,6 +1,6 @@
 from sqlalchemy import and_
-from ...models.template import Template, MainDisease, SheetName
-from ..connection import get_session
+from models.template import Template, MainDisease, SheetName
+from database.connection import get_session
 
 
 class TemplateRepository:

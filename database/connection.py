@@ -43,13 +43,28 @@ def get_session():
         session.close()
 
 
-def initialize_database():
+# connection.py の修正
+# 以下の関数名を変更：
+# initialize_database() → init_database()
+
+def init_database(custom_db_url=None):
     """
     データベースの初期化を行う
+
+    Args:
+        custom_db_url (str, optional): カスタムデータベースURL。指定された場合、このURLを使用。
 
     注意: このメソッドを呼び出す前に必ずBase.metadata.create_all(engine)が
     別の場所で呼び出されていることを確認してください。
     """
+    global engine, Session, db_url
+
+    # カスタムURLが指定された場合は、それを使用
+    if custom_db_url:
+        db_url = custom_db_url
+        engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
+        Session = sessionmaker(bind=engine)
+
     # テーブル作成はmodels/base.pyのBase.metadata.create_all(engine)で行われるため、
     # 必要に応じてここに追加の初期化ロジックを実装
     pass

@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import desc
-from ...models.patient import PatientInfo
-from ..connection import get_session
+from models.patient import PatientInfo
+from database.connection import get_session
 
 
 class PatientRepository:

@@ -1,7 +1,7 @@
 import os
 import flet as ft
-from ...services.csv_service import CSVService
-from ...services.version_manager import get_version_info
+from services.csv_service import CSVService
+from services.version_manager import get_version_info
 
 
 class DialogManager:
