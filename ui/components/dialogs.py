@@ -159,3 +159,38 @@ class DialogManager:
         else:
             self.show_error("操作マニュアルのパスを確認してください")
             return False
+
+
+# main.pyでインポートされる関数
+def create_settings_dialog(page: ft.Page, export_callback=None, import_callback=None):
+    """
+    設定ダイアログを作成する関数
+
+    Args:
+        page (ft.Page): ダイアログを表示するページオブジェクト
+        export_callback (callable, optional): CSV出力ボタンのコールバック
+        import_callback (callable, optional): CSV取込ボタンのコールバック
+
+    Returns:
+        DialogManager: 作成されたダイアログマネージャーインスタンス
+    """
+    dialog_manager = DialogManager(page)
+    dialog_manager.show_settings_dialog(export_callback, import_callback)
+    return dialog_manager
+
+
+def create_error_dialog(page: ft.Page, error_message: str, duration: int = 3000):
+    """
+    エラーダイアログを作成する関数
+
+    Args:
+        page (ft.Page): ダイアログを表示するページオブジェクト
+        error_message (str): 表示するエラーメッセージ
+        duration (int, optional): 表示時間（ミリ秒）。デフォルトは3000ms
+
+    Returns:
+        DialogManager: 作成されたダイアログマネージャーインスタンス
+    """
+    dialog_manager = DialogManager(page)
+    dialog_manager.show_error(error_message, duration)
+    return dialog_manager
