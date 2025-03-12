@@ -126,7 +126,7 @@ class MainController:
     def on_startup(self):
         """スタートアップ時の処理"""
         # 初期化処理を実装
-        check_file_exists(self.page)
+        check_file_exists(self.csv_file_path)
 
     def on_file_selected(self, e):
         """
