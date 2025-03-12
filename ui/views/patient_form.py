@@ -21,13 +21,16 @@ class PatientForm:
         self.text_height = text_height
         self.dropdown_items = dropdown_items
 
-        # UI部品の初期化
+        # UI部品の初期化 - 正しい順序で呼び出す
         self._init_basic_info_fields()
         self._init_diagnosis_fields()
         self._init_goal_fields()
-        self._init_diet_exercise_fields()
+        self._init_diet_exercise_fields()  # ここからself._setup_focus_handlers()の呼び出しを削除
         self._init_other_fields()
         self._init_date_picker()
+
+        # 全てのフィールドが初期化された後にfocus handlersをセットアップ
+        self._setup_focus_handlers()
 
         # フォームレイアウトの作成
         self.guidance_items = self._create_guidance_items()
@@ -113,7 +116,7 @@ class PatientForm:
                          self.exercise_intensity, self.daily_activity]:
             dropdown.height = self.input_height
 
-        # コメントフィールド - これらを_setup_focus_handlers()の前に定義する必要がある
+        # コメントフィールド
         import flet as ft
         self.diet_comment = ft.TextField(
             label="食事フリーコメント",
@@ -128,9 +131,6 @@ class PatientForm:
             text_style=ft.TextStyle(size=13),
             height=self.text_height
         )
-
-        # フォーカス移動のハンドラを設定 - コメントフィールド定義後
-        self._setup_focus_handlers()
 
     def _init_other_fields(self):
         """その他のフィールドの初期化"""

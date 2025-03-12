@@ -2,6 +2,7 @@ import os
 import re
 from datetime import datetime
 import csv
+import pandas as pd
 import flet as ft
 from io import BytesIO
 
@@ -49,15 +50,21 @@ class MainView:
         create_ui(self.page, initial_patient_id, df_patients, VERSION, LAST_UPDATED)
 
     def load_patient_info(self, patient_id_arg, df_patients=None):
-        """患者情報を読み込むメソッド"""
+        """
+        患者情報を読み込むメソッド
+
+        Args:
+            patient_id_arg: 患者ID
+            df_patients: 患者データフレーム（Noneの場合は読み込む）
+        """
         if df_patients is None:
             _, df_patients = csv_service.load_patient_data()
 
         if df_patients is not None and not df_patients.empty:
             patient_info = df_patients[df_patients.iloc[:, 2] == patient_id_arg]
             if not patient_info.empty:
-                # 既存のload_patient_info関数の処理を実装
-                self.patient_form.load_patient_info(patient_id_arg, df_patients, format_date)
+                # self.format_dateメソッドを使用
+                self.patient_form.load_patient_info(patient_id_arg, df_patients, self.format_date)
 
     def update_history(self, filter_patient_id=None):
         """履歴を更新するメソッド"""
