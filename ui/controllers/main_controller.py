@@ -57,7 +57,7 @@ def check_file_exists(page):
 
 def main(page: ft.Page):
     # データベースの初期化処理をバックグラウンドで実行
-    threading.Thread(target=initialize_database).start()
+    threading.Thread(target=init_database).start()
 
     # pat.csvの読み込み
     error_message, df_patients = load_patient_data()

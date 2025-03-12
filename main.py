@@ -66,9 +66,9 @@ def initialize_application(page: ft.Page, config: ConfigManager):
     setup_page(page, config)
 
     # サービスの初期化
-    csv_service = CSVService(config)
-    barcode_service = BarcodeService(config)
-    treatment_plan_generator = TreatmentPlanGenerator(config, barcode_service)
+    csv_service = CSVService()
+    barcode_service = BarcodeService()
+    treatment_plan_generator = TreatmentPlanGenerator()
 
     # リポジトリの初期化
     patient_repo = PatientRepository()
@@ -76,7 +76,7 @@ def initialize_application(page: ft.Page, config: ConfigManager):
 
     # 初期データの確認と挿入
     with get_session() as session:
-        template_repo.initialize_default_data(session)
+        template_repo.initialize_default_data()
 
     # UI項目の初期化
     ui_settings = config.get_ui_settings()

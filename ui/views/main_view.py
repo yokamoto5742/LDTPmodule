@@ -393,7 +393,8 @@ def create_ui(page, initial_patient_id, df_patients, VERSION, LAST_UPDATED):
                                                           patients_df)
             session.add(treatment_plan)
             session.commit()
-            TreatmentPlanGenerator.generate_plan(treatment_plan, "LDTPform")
+            treatment_plan_generator = TreatmentPlanGenerator()
+            treatment_plan_generator.generate_plan(treatment_plan, "LDTPform")
             open_route(None)
         finally:
             session.close()

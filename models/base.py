@@ -32,6 +32,6 @@ def get_session():
     finally:
         session.close()
 
-def initialize_database():
+def init_database():
     """データベーステーブルの初期化"""
     Base.metadata.create_all(engine)
