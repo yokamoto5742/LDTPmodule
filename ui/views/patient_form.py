@@ -113,23 +113,24 @@ class PatientForm:
                          self.exercise_intensity, self.daily_activity]:
             dropdown.height = self.input_height
 
-        # フォーカス移動の設定
-        self._setup_focus_handlers()
-
-        # コメントフィールド
+        # コメントフィールド - これらを_setup_focus_handlers()の前に定義する必要がある
+        import flet as ft
         self.diet_comment = ft.TextField(
             label="食事フリーコメント",
             width=800,
-            text_size=13,
+            text_style=ft.TextStyle(size=13),
             height=self.text_height
         )
 
         self.exercise_comment = ft.TextField(
             label="運動フリーコメント",
             width=800,
-            text_size=13,
+            text_style=ft.TextStyle(size=13),
             height=self.text_height
         )
+
+        # フォーカス移動のハンドラを設定 - コメントフィールド定義後
+        self._setup_focus_handlers()
 
     def _init_other_fields(self):
         """その他のフィールドの初期化"""

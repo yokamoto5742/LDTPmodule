@@ -218,3 +218,28 @@ class DropdownItems:
             options (list): オプションのリスト
         """
         self.items[key] = options
+
+    def create_dropdown(self, key, label, width):
+        """
+        ドロップダウンフィールドを作成する
+
+        Args:
+            key (str): 選択肢のカテゴリキー
+            label (str): ドロップダウンのラベル
+            width (int): ドロップダウンの幅
+
+        Returns:
+            ft.Dropdown: 作成されたドロップダウンオブジェクト
+        """
+        import flet as ft
+        options = [ft.dropdown.Option(str(item)) for item in self.get_options(key)]
+
+        return ft.Dropdown(
+            label=label,
+            width=width,
+            options=options,
+            border_color=ft.colors.ON_SURFACE_VARIANT,
+            focused_border_color=ft.colors.PRIMARY,
+            text_style=ft.TextStyle(size=13),
+            color=ft.colors.ON_SURFACE,
+        )

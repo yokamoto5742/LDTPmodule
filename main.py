@@ -48,7 +48,7 @@ def main(page: ft.Page):
 
     # データベースの初期化
     db_url = config.get_database_url()
-    init_database(db_url)
+    init_database(db_url)  # これでテーブルも作成されるようになりました
 
     # アプリケーションの初期化
     initialize_application(page, config)
@@ -90,13 +90,11 @@ def initialize_application(page: ft.Page, config: ConfigManager):
     main_view = MainView(page, patient_form, create_button_style(page))
 
     # コントローラーの初期化
-    form_controller = FormController(
-        page=page,
-        patient_form=patient_form,
-        patient_repo=patient_repo,
-        template_repo=template_repo,
-        treatment_plan_generator=treatment_plan_generator
-    )
+    form_controller = FormController(page)
+    form_controller.patient_form = patient_form
+    form_controller.patient_repo = patient_repo
+    form_controller.template_repo = template_repo
+    form_controller.treatment_plan_generator = treatment_plan_generator
 
     main_controller = MainController(
         page=page,

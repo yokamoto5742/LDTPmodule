@@ -9,8 +9,67 @@ from models.patient import PatientInfo
 from models.template import MainDisease, SheetName, Template
 from database.connection import get_session, Session
 from services.treatment_plan import TreatmentPlanGenerator
-from services.csv_service import load_patient_data
+from services.csv_service import CSVService
 from ui.components.form_fields import DropdownItems, create_blue_outlined_dropdown, create_form_fields
+
+
+csv_service = CSVService()
+
+
+class MainView:
+    """メイン画面ビューを管理するクラス"""
+
+    def __init__(self, page: ft.Page, patient_form, button_style=None):
+        """
+        MainViewクラスの初期化
+
+        Args:
+            page: Fletページオブジェクト
+            patient_form: 患者情報フォームオブジェクト
+            button_style: ボタンスタイル設定（オプション）
+        """
+        self.page = page
+        self.patient_form = patient_form
+        self.button_style = button_style or {}
+        self.selected_row = None
+
+        # 設定の読み込み
+        import configparser
+        self.config = configparser.ConfigParser()
+        self.config.read('config.ini', encoding='utf-8')
+
+        # 設定値の取得
+        self.export_folder = self.config.get('FilePaths', 'export_folder')
+        self.manual_pdf_path = self.config.get('FilePaths', 'manual_pdf')
+
+    def create_ui(self, initial_patient_id, df_patients, VERSION, LAST_UPDATED):
+        """UIの作成メソッド - 既存のcreate_ui関数の機能をラップする"""
+        # 既存のcreate_ui関数と同様の機能をここで実装
+        # もしくは既存の関数を呼び出す
+        create_ui(self.page, initial_patient_id, df_patients, VERSION, LAST_UPDATED)
+
+    def load_patient_info(self, patient_id_arg, df_patients=None):
+        """患者情報を読み込むメソッド"""
+        if df_patients is None:
+            _, df_patients = csv_service.load_patient_data()
+
+        if df_patients is not None and not df_patients.empty:
+            patient_info = df_patients[df_patients.iloc[:, 2] == patient_id_arg]
+            if not patient_info.empty:
+                # 既存のload_patient_info関数の処理を実装
+                self.patient_form.load_patient_info(patient_id_arg, df_patients, format_date)
+
+    def update_history(self, filter_patient_id=None):
+        """履歴を更新するメソッド"""
+        # history更新の処理を実装
+        # 既存のupdate_history関数の処理
+        pass
+
+    def format_date(self, date_str):
+        """日付をフォーマットするメソッド"""
+        if pd.isna(date_str):
+            return ""
+        return pd.to_datetime(date_str).strftime("%Y/%m/%d")
 
 
 def create_theme_aware_button_style(page: ft.Page):
@@ -67,7 +126,7 @@ def create_ui(page, initial_patient_id, df_patients, VERSION, LAST_UPDATED):
     selected_row = None
 
     def on_startup(e):
-        error_message_start, df_patients_data = load_patient_data()
+        error_message_start, df_patients_data = csv_service.load_patient_data()
         if error_message_start:
             snack_bar = ft.SnackBar(
                 content=ft.Text(error_message_start),
@@ -557,7 +616,7 @@ def create_ui(page, initial_patient_id, df_patients, VERSION, LAST_UPDATED):
 
         if patient_info:
             # pat.csvから最新の情報を取得
-            error_message, df_patients = load_patient_data()
+            error_message, df_patients = csv_service.load_patient_data()
             if error_message:
                 session.close()
                 return
