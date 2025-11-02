@@ -9,9 +9,11 @@ def get_config_path():
         # PyInstallerでビルドされた実行ファイルの場合
         base_path = sys._MEIPASS
     else:
+        # 通常のPythonスクリプトとして実行される場合
         base_path = os.path.dirname(__file__)
 
     return os.path.join(base_path, 'config.ini')
+
 
 CONFIG_PATH = get_config_path()
 

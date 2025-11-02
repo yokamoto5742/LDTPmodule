@@ -26,7 +26,6 @@ from barcode.writer import ImageWriter
 from io import BytesIO
 
 import config_manager
-from version import VERSION, LAST_UPDATED
 
 
 config = config_manager.load_config()
