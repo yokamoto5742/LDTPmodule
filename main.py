@@ -25,7 +25,7 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-import config_manager
+from utils import config_manager
 
 
 config = config_manager.load_config()

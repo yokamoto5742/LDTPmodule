@@ -19,7 +19,7 @@ def build_executable():
     dist_path = os.path.join('dist', 'LDTPapp')
 
     if not os.path.exists(os.path.join(dist_path, 'config.ini')):
-        shutil.copy('config.ini', dist_path)
+        shutil.copy('utils/config.ini', dist_path)
 
     print(f"Executable built successfully. Version: {new_version}")
 
