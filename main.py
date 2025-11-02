@@ -1,24 +1,25 @@
-import csv
 import os
-import re
 import threading
-import time
 from datetime import datetime
-from io import BytesIO
 
 import flet as ft
-import pandas as pd
-from barcode.codex import Code128
-from barcode.writer import ImageWriter
 from flet import View
-from openpyxl import load_workbook
-from openpyxl.drawing.image import Image
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
-from database import get_engine, get_session, get_session_factory
+from database import get_engine, get_session_factory
 from database.initializer import initialize_database, seed_initial_data
 from models import Base, MainDisease, PatientInfo, SheetName, Template
+from services import (
+    TemplateManager,
+    TreatmentPlanGenerator,
+    check_file_exists,
+    export_to_csv,
+    fetch_patient_history,
+    import_from_csv,
+    load_main_diseases,
+    load_patient_data,
+    load_sheet_names,
+    start_file_monitoring,
+)
 from utils import calculate_issue_date_age, config_manager, format_date
 
 config = config_manager.load_config()
@@ -132,186 +133,8 @@ def create_form_fields(dropdown_items):
 
 
 
-class TreatmentPlanGenerator:
-    @staticmethod
-    def generate_plan(patient_info, file_name):
-        template_path = config.get("Paths", "template_path")
-        output_path = config.get("Paths", "output_path")
-        current_time = datetime.now().strftime("%H%M%S")
-        patient_id = str(patient_info.patient_id).zfill(9)
-        document_number = "39221"
-        department_id = str(patient_info.department_id).zfill(3)
-        doctor_id = str(patient_info.doctor_id).zfill(5)
-        issue_date = patient_info.issue_date.strftime("%Y%m%d")
-        new_file_name = f"{patient_id}{document_number}{department_id}{doctor_id}{issue_date}{current_time}.xlsm"
-        file_path = os.path.join(output_path, new_file_name)
-        workbook = load_workbook(template_path, keep_vba=True)
-        common_sheet = workbook["共通情報"]
-
-        # 共通情報シートにデータを設定
-        TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
-
-        # バーコード生成の共通設定
-        options = {
-            'write_text': barcode_config.getboolean('write_text', False),
-            'module_height': barcode_config.getfloat('module_height', 15),
-            'module_width': barcode_config.getfloat('module_width', 0.25),
-            'quiet_zone': barcode_config.getint('quiet_zone', 1),
-        }
-
-        # バーコードデータの生成
-        issue_date = patient_info.issue_date.strftime("%Y%m%d")
-        barcode_data = f"{patient_id}{document_number}{department_id}{doctor_id}{issue_date}{current_time}"
-
-        # バッファオブジェクト参照を保持（後で閉じるため）
-        buffers = []
-
-        def add_barcode_to_sheet(sheet):
-            barcode = Code128(barcode_data, writer=ImageWriter())
-            buffer = BytesIO()
-            barcode.write(buffer, options=options)
-            buffer.seek(0)  # 重要: ポインタを先頭に戻す
-            img = Image(buffer)
-            img.width = barcode_config.getint('image_width', 200)
-            img.height = barcode_config.getint('image_height', 30)
-            image_position = barcode_config.get('image_position', 'B2')
-            sheet.add_image(img, image_position)
-            buffers.append(buffer)
-
-        # 両方のシートにバーコードを追加
-        initial_sheet = workbook["初回用"]
-        continuous_sheet = workbook["継続用"]
-        add_barcode_to_sheet(initial_sheet)
-        add_barcode_to_sheet(continuous_sheet)
-
-        # すべてのシートの選択状態をリセット
-        for sheet in workbook.worksheets:
-            sheet.sheet_view.tabSelected = False
-
-        # 適切なシートをアクティブにする
-        if patient_info.creation_count == 1:
-            ws_plan = workbook["初回用"]
-        else:
-            ws_plan = workbook["継続用"]
-        ws_plan.sheet_view.tabSelected = True
-        workbook.active = ws_plan
-
-        # ファイルを保存
-        workbook.save(file_path)
-
-        # ファイル保存後にバッファを閉じる
-        for buffer in buffers:
-            buffer.close()
-
-        # Excelファイルを開く
-        time.sleep(0.1)
-        os.startfile(file_path)
-
-    @staticmethod
-    def populate_common_sheet(common_sheet, patient_info):
-        common_sheet["B2"] = patient_info.patient_id
-        common_sheet["B3"] = patient_info.patient_name
-        common_sheet["B4"] = patient_info.kana
-        common_sheet["B5"] = patient_info.gender
-        common_sheet["B6"] = patient_info.birthdate
-        common_sheet["B7"] = patient_info.issue_date
-        common_sheet["B8"] = patient_info.doctor_id
-        common_sheet["B9"] = patient_info.doctor_name
-        common_sheet["B10"] = patient_info.department_id
-        common_sheet["B11"] = patient_info.department
-        common_sheet["B12"] = patient_info.main_diagnosis
-        common_sheet["B13"] = patient_info.creation_count
-        common_sheet["B14"] = patient_info.target_weight
-        common_sheet["B15"] = patient_info.sheet_name
-        common_sheet["B16"] = patient_info.target_bp
-        common_sheet["B17"] = patient_info.target_hba1c
-        common_sheet["B18"] = patient_info.goal1
-        common_sheet["B19"] = patient_info.goal2
-        common_sheet["B20"] = patient_info.target_achievement
-        common_sheet["B21"] = patient_info.diet1
-        common_sheet["B22"] = patient_info.diet2
-        common_sheet["B23"] = patient_info.diet3
-        common_sheet["B24"] = patient_info.diet4
-        common_sheet["B25"] = patient_info.exercise_prescription
-        common_sheet["B26"] = patient_info.exercise_time
-        common_sheet["B27"] = patient_info.exercise_frequency
-        common_sheet["B28"] = patient_info.exercise_intensity
-        common_sheet["B29"] = patient_info.daily_activity
-        common_sheet["B30"] = patient_info.nonsmoker
-        common_sheet["B31"] = patient_info.smoking_cessation
-        common_sheet["B32"] = patient_info.other1
-        common_sheet["B33"] = patient_info.other2
-        common_sheet["B34"] = patient_info.ophthalmology
-        common_sheet["B35"] = patient_info.dental
-        common_sheet["B36"] = patient_info.cancer_screening
-        common_sheet["B37"] = patient_info.issue_date_age
-        common_sheet["B38"] = patient_info.diet_comment
-        common_sheet["B39"] = patient_info.exercise_comment
 
 
-class TemplateManager:
-    def __init__(self):
-        self.templates = {}
-
-    def get_template(self, main_disease, sheet_name):
-        return self.templates.get((main_disease, sheet_name))
-
-
-class MyHandler(FileSystemEventHandler):
-    def __init__(self, page):
-        self.page = page
-
-    def on_deleted(self, event):
-        if event.src_path == csv_file_path:
-            self.page.window.close()
-
-
-def start_file_monitoring(page):
-    event_handler = MyHandler(page)
-    observer = Observer()
-    observer.schedule(event_handler, path=os.path.dirname(csv_file_path), recursive=False)
-    observer.start()
-    return observer
-
-
-def check_file_exists(page):
-    if not os.path.exists(csv_file_path):
-        page.window.close()
-
-
-def load_patient_data():
-    global csv_file_path
-    try:
-        config_csv = config_manager.load_config()
-        csv_file_path = config_csv.get('FilePaths', 'patient_data')
-
-        date_columns = [0, 6]  # 0列目と6列目を日付として読み込む
-        nrows = 3  # csvファイルで先頭3行のみ読み込む
-
-        df = pd.read_csv(csv_file_path, encoding="shift_jis", header=None, parse_dates=date_columns, nrows=nrows)
-        return "", df
-
-    except (configparser.NoSectionError, configparser.NoOptionError):
-        return "エラー: config.iniファイルに'FilePaths'セクションまたは'patient_data'キーが見つかりません。", None
-    except Exception as e:
-        return f"エラー: {str(e)}", None
-
-
-
-
-def load_main_diseases():
-    with get_session() as session:
-        main_diseases = session.query(MainDisease).all()
-        return [ft.dropdown.Option(str(disease.name)) for disease in main_diseases]
-
-
-def load_sheet_names(main_disease=None):
-    with get_session() as session:
-        if main_disease:
-            sheet_names = session.query(SheetName).filter(SheetName.main_disease_id == main_disease).all()
-        else:
-            sheet_names = session.query(SheetName).all()
-        return [ft.dropdown.Option(str(sheet.name)) for sheet in sheet_names]
 
 
 
@@ -386,7 +209,7 @@ def create_ui(page):
             page.update()
 
         def csv_export(e):
-            export_to_csv(e)
+            export_to_csv_ui(e)
             close_dialog(e)
 
         content = ft.Container(
@@ -419,66 +242,16 @@ def create_ui(page):
     page.overlay.append(file_picker)
 
     def import_csv(file_path):
-        file_name = os.path.basename(file_path)
-        if not re.match(r'^patient_info_.*\.csv$', file_name):
+        error = import_from_csv(file_path)
+        if error:
             error_snack_bar = ft.SnackBar(
-                content=ft.Text("インポートエラー:このファイルはインポートできません"),
-                duration=1000
+                content=ft.Text(error),
+                duration=3000 if "インポート中に" in error else 1000
             )
             error_snack_bar.open = True
             page.overlay.append(error_snack_bar)
             page.update()
-            return
-
-        try:
-            with open(file_path, encoding='shift_jis') as csvfile:
-                csv_reader = csv.DictReader(csvfile)
-                session = Session()
-                for row in csv_reader:
-                    patient_info = PatientInfo(
-                        patient_id=int(row['patient_id']),
-                        patient_name=row['patient_name'],
-                        kana=row['kana'],
-                        gender=row['gender'],
-                        birthdate=datetime.strptime(row['birthdate'], '%Y-%m-%d').date(),
-                        issue_date=datetime.strptime(row['issue_date'], '%Y-%m-%d').date(),
-                        issue_date_age=int(row['issue_date_age']),
-                        doctor_id=int(row['doctor_id']),
-                        doctor_name=row['doctor_name'],
-                        department=row['department'],
-                        department_id=int(row['department_id']),
-                        main_diagnosis=row['main_diagnosis'],
-                        sheet_name=row['sheet_name'],
-                        creation_count=int(row['creation_count']),
-                        target_weight=float(row['target_weight']) if row['target_weight'] else None,
-                        target_bp=row['target_bp'],
-                        target_hba1c=row['target_hba1c'],
-                        goal1=row['goal1'],
-                        goal2=row['goal2'],
-                        target_achievement=row['target_achievement'],
-                        diet1=row['diet1'],
-                        diet2=row['diet2'],
-                        diet3=row['diet3'],
-                        diet4=row['diet4'],
-                        diet_comment=row['diet_comment'],
-                        exercise_prescription=row['exercise_prescription'],
-                        exercise_time=row['exercise_time'],
-                        exercise_frequency=row['exercise_frequency'],
-                        exercise_intensity=row['exercise_intensity'],
-                        daily_activity=row['daily_activity'],
-                        exercise_comment=row['exercise_comment'],
-                        nonsmoker=row['nonsmoker'] == 'True',
-                        smoking_cessation=row['smoking_cessation'] == 'True',
-                        other1=row['other1'],
-                        other2=row['other2'],
-                        ophthalmology=row['ophthalmology'] == 'True',
-                        dental=row['dental'] == 'True',
-                        cancer_screening=row['cancer_screening'] == 'True'
-                    )
-                    session.add(patient_info)
-                session.commit()
-                session.close()
-
+        else:
             snack_bar = ft.SnackBar(
                 content=ft.Text("CSVファイルからデータがインポートされました"),
                 duration=1000
@@ -488,44 +261,17 @@ def create_ui(page):
             update_history(int(patient_id.value))
             page.update()
 
-        except Exception as e:
+    def export_to_csv_ui(e):
+        csv_filename, csv_path, error = export_to_csv(export_folder)
+        if error:
             error_snack_bar = ft.SnackBar(
-                content=ft.Text(f"インポート中にエラーが発生しました: {str(e)}"),
-                duration=3000
+                content=ft.Text(f"エクスポート中にエラーが発生しました: {error}"),
+                duration=1000
             )
             error_snack_bar.open = True
             page.overlay.append(error_snack_bar)
             page.update()
-
-    def export_to_csv(e):
-        try:
-            # CSVファイル名を現在の日時で生成
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            csv_filename = f"patient_info_export_{timestamp}.csv"
-            csv_path = os.path.join(export_folder, csv_filename)
-
-            # エクスポートフォルダが存在しない場合は作成
-            os.makedirs(export_folder, exist_ok=True)
-
-            # セッションを開始
-            session = Session()
-
-            # PatientInfoテーブルからすべてのデータを取得
-            patient_data = session.query(PatientInfo).all()
-
-            # CSVファイルを書き込みモードで開く
-            with open(csv_path, 'w', newline='', encoding='shift_jis', errors='ignore') as csvfile:
-                writer = csv.writer(csvfile)
-
-                # ヘッダー行を書き込む
-                writer.writerow([column.name for column in PatientInfo.__table__.columns])
-
-                # データ行を書き込む
-                for patient in patient_data:
-                    writer.writerow([getattr(patient, column.name) for column in PatientInfo.__table__.columns])
-
-            session.close()
-
+        else:
             snack_bar = ft.SnackBar(
                 content=ft.Text(f"データがCSVファイル '{csv_filename}' にエクスポートされました"),
                 duration=1000
@@ -533,18 +279,7 @@ def create_ui(page):
             snack_bar.open = True
             page.overlay.append(snack_bar)
             page.update()
-
             os.startfile(export_folder)
-
-        except Exception as e:
-            # エラーメッセージを表示
-            error_snack_bar = ft.SnackBar(
-                content=ft.Text(f"エクスポート中にエラーが発生しました: {str(e)}"),
-                duration=1000
-            )
-            error_snack_bar.open = True
-            page.overlay.append(error_snack_bar)
-            page.update()
 
     def on_issue_date_change(e):
         if issue_date_picker.value:
@@ -1067,26 +802,7 @@ def create_ui(page):
             open_edit(e)
 
     def fetch_data(filter_patient_id=None):
-        if not filter_patient_id:
-            return []
-
-        session_fetch_data = Session()
-        query = session_fetch_data.query(PatientInfo.id, PatientInfo.issue_date, PatientInfo.department,
-                                         PatientInfo.doctor_name, PatientInfo.main_diagnosis,
-                                         PatientInfo.sheet_name, PatientInfo.creation_count). \
-            order_by(PatientInfo.patient_id.asc(), PatientInfo.id.desc())
-
-        query = query.filter(PatientInfo.patient_id == filter_patient_id)
-
-        return ({
-            "id": str(info.id),
-            "issue_date": info.issue_date.strftime("%Y/%m/%d") if info.issue_date else "",
-            "department": info.department,
-            "doctor_name": info.doctor_name,
-            "main_diagnosis": info.main_diagnosis,
-            "sheet_name": info.sheet_name,
-            "count": info.creation_count
-        } for info in query)
+        return fetch_patient_history(filter_patient_id)
 
     def create_data_rows(data):
         rows = []
