@@ -1,32 +1,24 @@
-import os
-import sys
-import re
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-from datetime import datetime
 import csv
-import time
+import os
+import re
 import threading
-import psutil
-import win32com.client
-import pythoncom
-
-import flet as ft
-from flet import View
-import pandas as pd
-from openpyxl import load_workbook
-from openpyxl.drawing.image import Image
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
-import configparser
-from contextlib import contextmanager
-from barcode.codex import Code128
-from barcode.writer import ImageWriter
+import time
+from datetime import datetime
 from io import BytesIO
 
-from utils import config_manager
+import flet as ft
+import pandas as pd
+from barcode.codex import Code128
+from barcode.writer import ImageWriter
+from flet import View
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
+from sqlalchemy import Column, Boolean, Date, Float, Integer, String
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
+from database import get_base, get_engine, get_session, get_session_factory
+from utils import calculate_issue_date_age, config_manager, format_date
 
 config = config_manager.load_config()
 input_height = config.getint('UI', 'input_height', fallback=50)
@@ -40,9 +32,9 @@ export_folder = config.get('FilePaths', 'export_folder')
 manual_pdf_path = config.get('FilePaths', 'manual_pdf')
 
 # SQLAlchemyの設定
-engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
-Session = sessionmaker(bind=engine)
-Base = declarative_base()
+engine = get_engine()
+Session = get_session_factory()
+Base = get_base()
 
 # 治療計画書の履歴の選択を空欄にする(初期値)
 selected_row = None
@@ -217,26 +209,6 @@ def create_form_fields(dropdown_items):
             daily_activity, target_achievement, diet1, diet2, diet3, diet4)
 
 
-def close_excel_if_needed(target_path):
-    """特定のExcelファイルが開いているか確認し、必要なら閉じる"""
-    target_path = os.path.abspath(target_path).lower()
-
-    try:
-        # COMオブジェクトの初期化
-        pythoncom.CoInitialize()
-        excel = win32com.client.GetObject('Excel.Application')
-
-        # 開いているワークブックをチェック
-        for wb in excel.Workbooks:
-            if os.path.abspath(wb.FullName).lower() == target_path:
-                wb.Close(SaveChanges=False)
-                time.sleep(0.1)
-                break
-
-    except:
-        pass
-    finally:
-        pythoncom.CoUninitialize()
 
 
 class TreatmentPlanGenerator:
@@ -404,13 +376,6 @@ def load_patient_data():
         return f"エラー: {str(e)}", None
 
 
-@contextmanager
-def get_session():
-    session = Session()
-    try:
-        yield session
-    finally:
-        session.close()
 
 
 def load_main_diseases():
@@ -428,10 +393,6 @@ def load_sheet_names(main_disease=None):
         return [ft.dropdown.Option(str(sheet.name)) for sheet in sheet_names]
 
 
-def format_date(date_str):
-    if pd.isna(date_str):  # pd.isna()で欠損値かどうかを判定
-        return ""
-    return pd.to_datetime(date_str).strftime("%Y/%m/%d")
 
 
 def initialize_database():
@@ -655,7 +616,7 @@ def create_ui(page):
             content=ft.Column([
                 ft.Text(f"LDTPapp\nバージョン: {VERSION}\n最終更新日: {LAST_UPDATED}"),
                 ft.ElevatedButton("CSV出力", on_click=csv_export),
-                ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files(allow_multiple=False)),
+                ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files()),
             ]),
             height=page.window.height * 0.3,
         )
@@ -693,7 +654,7 @@ def create_ui(page):
             return
 
         try:
-            with open(file_path, 'r', encoding='shift_jis') as csvfile:
+            with open(file_path, encoding='shift_jis') as csvfile:
                 csv_reader = csv.DictReader(csvfile)
                 session = Session()
                 for row in csv_reader:
@@ -840,7 +801,7 @@ def create_ui(page):
                     name=selected_main_disease).first()
                 sheet_name_options = load_sheet_names(main_disease.id) if main_disease else []
             else:
-                sheet_name_options = load_sheet_names(None)
+                sheet_name_options = load_sheet_names()
 
         sheet_name_dropdown.options = sheet_name_options
         sheet_name_dropdown.value = ""
@@ -877,12 +838,6 @@ def create_ui(page):
             department_value.value = ""
         page.update()
 
-    def calculate_issue_date_age(birth_date, issue_date):
-        issue_date_age = issue_date.year - birth_date.year
-        if issue_date.month < birth_date.month or (
-                issue_date.month == birth_date.month and issue_date.day < birth_date.day):
-            issue_date_age -= 1
-        return issue_date_age
 
     def create_treatment_plan_object(p_id, doctor_id, doctor_name, department, department_id, patients_df):
         patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
@@ -1298,7 +1253,7 @@ def create_ui(page):
                 if main_disease:
                     sheet_name_dropdown.options = load_sheet_names(main_disease.id)
                 else:
-                    sheet_name_dropdown.options = load_sheet_names(None)
+                    sheet_name_dropdown.options = load_sheet_names()
                 sheet_name_dropdown.value = patient_info.sheet_name
 
                 creation_count.value = patient_info.creation_count
