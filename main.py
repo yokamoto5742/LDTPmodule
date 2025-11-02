@@ -21,6 +21,12 @@ from services import (
     start_file_monitoring,
 )
 from utils import calculate_issue_date_age, config_manager, format_date
+from widgets import (
+    DropdownItems,
+    create_blue_outlined_dropdown,
+    create_form_fields,
+    create_theme_aware_button_style,
+)
 
 config = config_manager.load_config()
 input_height = config.getint('UI', 'input_height', fallback=50)
@@ -45,90 +51,6 @@ selected_row = None
 Base.metadata.create_all(engine)
 
 
-class DropdownItems:
-    def __init__(self):
-        self.items = {
-            'target_achievement': ['概ね達成', '概ね70%達成', '概ね50%達成', '未達成', '(空欄)'],
-            'diet': ['食事量を適正にする', "塩分量を適正にする", '水分摂取量を増やす', '食物繊維の摂取量を増やす',
-                     'ゆっくり食べる','間食を減らす', 'アルコールを控える', '脂肪の多い食品や甘い物を控える',
-                     '揚げ物や炒め物などを減らす', '1日3食を規則正しくとる', '今回は指導の必要なし', '(空欄)'],
-            'exercise_prescription': ['ウォーキング', 'ストレッチ体操', '筋力トレーニング', '自転車', '畑仕事',
-                                      '今回は指導の必要なし', '(空欄)'],
-            'exercise_time': ['10分', '20分', '30分', '60分', '(空欄)'],
-            'exercise_frequency': ['毎日', '週に5日', '週に3日', '週に2日', '(空欄)'],
-            'exercise_intensity': ['息が弾む程度', 'ニコニコペース', '少し汗をかく程度', '息切れしない程度', '(空欄)'],
-            'daily_activity': ['3000歩', '5000歩', '6000歩', '8000歩', '10000歩', 'ストレッチ運動を主に行う', '(空欄)'],
-        }
-
-    def get_options(self, key):
-        return [ft.dropdown.Option(option) for option in self.items.get(key, [])]
-
-    def add_item(self, key, options):
-        self.items[key] = options
-
-    def create_dropdown(self, key, label, width, on_change=None):
-        return ft.Dropdown(
-            label=label,
-            width=width,
-            options=self.get_options(key),
-            on_change=on_change,
-            text_style=ft.TextStyle(size=13),
-            border_color=ft.colors.ON_SURFACE_VARIANT,
-            focused_border_color=ft.colors.PRIMARY,
-            color=ft.colors.ON_SURFACE,
-        )
-
-
-def create_blue_outlined_dropdown(dropdown_items, key, label, width):
-    return ft.Dropdown(
-        label=label,
-        width=width,
-        options=dropdown_items.get_options(key),
-        border_color=ft.colors.BLUE,
-        border_width=3,
-        focused_border_color=ft.colors.BLUE,
-        focused_border_width=3,
-        text_style=ft.TextStyle(size=13),
-        color=ft.colors.ON_SURFACE,
-    )
-
-
-def create_form_fields(dropdown_items):
-    target_achievement = create_blue_outlined_dropdown(
-        dropdown_items,
-        'target_achievement',
-        "目標達成状況(2回目以降)",
-        400
-    )
-    diet1 = dropdown_items.create_dropdown('diet', "食事1", 400)
-    diet2 = dropdown_items.create_dropdown('diet', "食事2", 400)
-    diet3 = dropdown_items.create_dropdown('diet', "食事3", 400)
-    diet4 = dropdown_items.create_dropdown('diet', "食事4", 400)
-    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 200)
-    exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
-    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 200)
-    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 200)
-    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量", 300)
-
-    for dropdown in [target_achievement, diet1, diet2, diet3, diet4, exercise_prescription,
-                     exercise_time, exercise_frequency, exercise_intensity, daily_activity]:
-        dropdown.height = input_height
-
-    def create_focus_handler(next_field):
-        return lambda _: next_field.focus()
-
-    target_achievement.on_change = create_focus_handler(diet1)
-    diet1.on_change = create_focus_handler(diet2)
-    diet2.on_change = create_focus_handler(diet3)
-    diet3.on_change = create_focus_handler(diet4)
-    diet4.on_change = create_focus_handler(exercise_prescription)
-    exercise_prescription.on_change = create_focus_handler(exercise_time)
-    exercise_time.on_change = create_focus_handler(exercise_frequency)
-    exercise_frequency.on_change = create_focus_handler(exercise_intensity)
-    exercise_intensity.on_change = create_focus_handler(daily_activity)
-
-    return (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-            daily_activity, target_achievement, diet1, diet2, diet3, diet4)
 
 
 
@@ -141,23 +63,8 @@ def create_form_fields(dropdown_items):
 
 
 
-def create_theme_aware_button_style(page: ft.Page):
-    return {
-        "style": ft.ButtonStyle(
-            color={
-                ft.MaterialState.HOVERED: ft.colors.ON_PRIMARY,
-                ft.MaterialState.FOCUSED: ft.colors.ON_PRIMARY,
-                ft.MaterialState.DEFAULT: ft.colors.ON_PRIMARY,
-            },
-            bgcolor={
-                ft.MaterialState.HOVERED: ft.colors.PRIMARY_CONTAINER,
-                ft.MaterialState.FOCUSED: ft.colors.PRIMARY_CONTAINER,
-                ft.MaterialState.DEFAULT: ft.colors.PRIMARY,
-            },
-            padding=10,
-        ),
-        "elevation": 3,
-    }
+
+
 
 
 def create_ui(page):
@@ -1150,7 +1057,7 @@ def create_ui(page):
                          on_submit=lambda _: exercise_frequency.focus(), text_size=13, height=text_height)
 
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-     daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
+     daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items, input_height)
 
     diet_comment = ft.TextField(label="食事フリーコメント", width=800,
                                 on_submit=lambda _: exercise_comment.focus(), text_size=13, height=text_height)
