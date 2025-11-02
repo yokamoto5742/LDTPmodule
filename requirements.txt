@@ -10,6 +10,7 @@ click==8.1.8
 colorama==0.4.6
 configparser==7.2.0
 cookiecutter==2.6.0
+coverage==7.11.0
 et_xmlfile==2.0.0
 fastapi==0.115.11
 flet==0.23.0
@@ -21,11 +22,13 @@ httpcore==1.0.7
 httptools==0.6.4
 httpx==0.28.1
 idna==3.10
+iniconfig==2.3.0
 Jinja2==3.1.6
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
 mysqlclient==2.2.7
+nodeenv==1.9.1
 numpy==1.24.4
 oauthlib==3.2.2
 openpyxl==3.1.5
@@ -33,6 +36,7 @@ packaging==23.2
 pandas==2.0.3
 pefile==2023.2.7
 pillow==11.1.0
+pluggy==1.6.0
 psutil==7.0.0
 pydantic==2.10.6
 pydantic_core==2.27.2
@@ -40,6 +44,9 @@ Pygments==2.19.1
 pyinstaller==6.12.0
 pyinstaller-hooks-contrib==2025.1
 pypng==0.20220715.0
+pyright==1.1.407
+pytest==8.4.2
+pytest-cov==7.0.0
 python-barcode==0.15.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
