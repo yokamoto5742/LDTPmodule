@@ -10,3 +10,5 @@ logs/
 *.iml
 
 error_log.txt
+ldtp_app.db
+patient_info_export*.csv
