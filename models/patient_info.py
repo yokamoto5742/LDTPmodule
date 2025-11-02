@@ -1,0 +1,48 @@
+from sqlalchemy import Boolean, Column, Date, Float, Integer, String
+
+from database import get_base
+
+Base = get_base()
+
+
+class PatientInfo(Base):
+    __tablename__ = 'patient_info'
+    id = Column(Integer, primary_key=True)
+    patient_id = Column(Integer)
+    patient_name = Column(String)
+    kana = Column(String)
+    gender = Column(String)
+    birthdate = Column(Date)
+    issue_date = Column(Date)
+    issue_date_age = Column(Integer)
+    doctor_id = Column(Integer)
+    doctor_name = Column(String)
+    department = Column(String)
+    department_id = Column(Integer)
+    main_diagnosis = Column(String)
+    creation_count = Column(Integer)
+    target_weight = Column(Float)
+    sheet_name = Column(String)
+    target_bp = Column(String)
+    target_hba1c = Column(String)
+    goal1 = Column(String)
+    goal2 = Column(String)
+    target_achievement = Column(String)
+    diet1 = Column(String)
+    diet2 = Column(String)
+    diet3 = Column(String)
+    diet4 = Column(String)
+    diet_comment = Column(String)
+    exercise_prescription = Column(String)
+    exercise_time = Column(String)
+    exercise_frequency = Column(String)
+    exercise_intensity = Column(String)
+    daily_activity = Column(String)
+    exercise_comment = Column(String)
+    nonsmoker = Column(Boolean)
+    smoking_cessation = Column(Boolean)
+    other1 = Column(String)
+    other2 = Column(String)
+    ophthalmology = Column(Boolean)
+    dental = Column(Boolean)
+    cancer_screening = Column(Boolean)
