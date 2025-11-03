@@ -29,7 +29,7 @@ class DropdownItems:
             options=self.get_options(key),
             on_change=on_change,
             text_style=ft.TextStyle(size=13),
-            border_color=ft.colors.ON_SURFACE_VARIANT,
-            focused_border_color=ft.colors.PRIMARY,
-            color=ft.colors.ON_SURFACE,
+            border_color=ft.colors.ON_SURFACE_VARIANT,  # type: ignore[attr-defined]
+            focused_border_color=ft.colors.PRIMARY,  # type: ignore[attr-defined]
+            color=ft.colors.ON_SURFACE,  # type: ignore[attr-defined]
         )

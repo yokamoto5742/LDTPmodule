@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import flet as ft
 from database import get_session_factory
 from services.patient_service import load_patient_data, load_main_diseases, load_sheet_names
@@ -35,7 +33,7 @@ def create_ui(page: ft.Page):
 
     # スタートアップハンドラ
     def on_startup(e):
-        if page.window.width < 1000:
+        if page.window.width is not None and page.window.width < 1000:
             snack_bar = ft.SnackBar(
                 content=ft.Text("ウィンドウサイズが小さすぎます。幅を1000ピクセル以上にしてください。")
             )
@@ -46,7 +44,7 @@ def create_ui(page: ft.Page):
     # 患者データ読み込み
     error_message, df_patients = load_patient_data()
     initial_patient_id = ""
-    if error_message:
+    if error_message or df_patients is None:
         error_message, df_patients = "", None
     elif not df_patients.empty:
         initial_patient_id = str(df_patients.iloc[0, 2])
@@ -77,8 +75,7 @@ def create_ui(page: ft.Page):
         label="主病名",
         options=main_disease_options,
         width=350,
-        height=input_height,
-        border_color=ft.colors.BLUE,
+        border_color=ft.colors.BLUE,  # type: ignore[attr-defined]
         border_width=2,
     )
 
@@ -87,8 +84,7 @@ def create_ui(page: ft.Page):
         label="シート名",
         options=sheet_name_options,
         width=350,
-        height=input_height,
-        border_color=ft.colors.BLUE,
+        border_color=ft.colors.BLUE,  # type: ignore[attr-defined]
         border_width=2,
     )
 
@@ -211,7 +207,7 @@ def create_ui(page: ft.Page):
 
     # EventHandlersにupdate_historyを設定
     event_handlers.update_history = update_history
-    event_handlers.fetch_data = fetch_data
+    event_handlers.fetch_data = fetch_data  # type: ignore[assignment]
 
     # DialogManagerにupdate_history_callbackを設定
     dialog_manager.update_history_callback = update_history
@@ -225,7 +221,7 @@ def create_ui(page: ft.Page):
         content=history_column,
         width=table_width,
         height=400,
-        border=ft.border.all(1, ft.colors.BLACK),
+        border=ft.border.all(1, ft.colors.BLACK),  # type: ignore[attr-defined]
         border_radius=5,
         padding=10,
     )
@@ -240,11 +236,11 @@ def create_ui(page: ft.Page):
 
     # ボタンハンドラ辞書の作成
     button_handlers = {
-        'open_create': lambda e: route_manager.open_create(e) if route_manager else None,
-        'open_edit': lambda e: route_manager.open_edit(e) if route_manager else None,
-        'open_template': lambda e: route_manager.open_template(e) if route_manager else None,
-        'open_route': lambda e: route_manager.open_route(e) if route_manager else None,
-        'on_close': lambda e: route_manager.on_close(e) if route_manager else None,
+        'open_create': lambda e: route_manager.open_create(e) if route_manager else None,  # type: ignore[union-attr]
+        'open_edit': lambda e: route_manager.open_edit(e) if route_manager else None,  # type: ignore[union-attr]
+        'open_template': lambda e: route_manager.open_template(e) if route_manager else None,  # type: ignore[union-attr]
+        'open_route': lambda e: route_manager.open_route(e) if route_manager else None,  # type: ignore[union-attr]
+        'on_close': lambda e: route_manager.on_close(e) if route_manager else None,  # type: ignore[union-attr]
         'copy_data': event_handlers.copy_data,
         'delete_data': event_handlers.delete_data,
         'create_new_plan': event_handlers.create_new_plan,
@@ -267,12 +263,12 @@ def create_ui(page: ft.Page):
     )
     manual_button = ft.ElevatedButton(
         "操作マニュアル",
-        on_click=lambda e: route_manager.open_manual_pdf(e) if route_manager else None,
+        on_click=lambda e: route_manager.open_manual_pdf(e) if route_manager else None,  # type: ignore[union-attr]
         **button_style
     )
     issue_date_button = ft.ElevatedButton(
         "日付選択",
-        icon=ft.icons.CALENDAR_TODAY,
+        icon=ft.icons.CALENDAR_TODAY,  # type: ignore[attr-defined]
         on_click=open_date_picker,
         **button_style
     )
@@ -317,7 +313,7 @@ def create_ui(page: ft.Page):
         update_history(patient_id.value)
 
     # イベントハンドラの設定
-    page.window.on_resized = on_startup
-    page.on_route_change = route_manager.route_change
-    page.on_view_pop = route_manager.view_pop
+    page.window.on_resized = on_startup  # type: ignore[assignment]
+    page.on_route_change = route_manager.route_change  # type: ignore[union-attr]
+    page.on_view_pop = route_manager.view_pop  # type: ignore[union-attr]
     page.go(page.route)

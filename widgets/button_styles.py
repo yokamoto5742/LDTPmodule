@@ -6,14 +6,14 @@ def create_theme_aware_button_style(page: ft.Page):
     return {
         "style": ft.ButtonStyle(
             color={
-                ft.MaterialState.HOVERED: ft.colors.ON_PRIMARY,
-                ft.MaterialState.FOCUSED: ft.colors.ON_PRIMARY,
-                ft.MaterialState.DEFAULT: ft.colors.ON_PRIMARY,
+                ft.MaterialState.HOVERED: ft.colors.ON_PRIMARY,  # type: ignore[attr-defined]
+                ft.MaterialState.FOCUSED: ft.colors.ON_PRIMARY,  # type: ignore[attr-defined]
+                ft.MaterialState.DEFAULT: ft.colors.ON_PRIMARY,  # type: ignore[attr-defined]
             },
             bgcolor={
-                ft.MaterialState.HOVERED: ft.colors.PRIMARY_CONTAINER,
-                ft.MaterialState.FOCUSED: ft.colors.PRIMARY_CONTAINER,
-                ft.MaterialState.DEFAULT: ft.colors.PRIMARY,
+                ft.MaterialState.HOVERED: ft.colors.PRIMARY_CONTAINER,  # type: ignore[attr-defined]
+                ft.MaterialState.FOCUSED: ft.colors.PRIMARY_CONTAINER,  # type: ignore[attr-defined]
+                ft.MaterialState.DEFAULT: ft.colors.PRIMARY,  # type: ignore[attr-defined]
             },
             padding=10,
         ),

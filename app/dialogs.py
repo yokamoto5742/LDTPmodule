@@ -106,7 +106,7 @@ class DialogManager:
 
     def _export_to_csv_ui(self, e, export_folder):
         """データをCSVファイルにエクスポート"""
-        csv_filename, csv_path, error = export_to_csv(export_folder)
+        csv_filename, _, error = export_to_csv(export_folder)
         if error:
             self.show_info_message(f"エクスポート中にエラーが発生しました: {error}")
         else:

@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import flet as ft
 from database import get_session_factory
 from models import PatientInfo, MainDisease, Template
 from services.patient_service import load_patient_data, load_main_diseases, load_sheet_names
@@ -274,7 +273,7 @@ class EventHandlers:
 
         if patient_info:
             error_message, df_patients = load_patient_data()
-            if error_message:
+            if error_message or df_patients is None:
                 session.close()
                 return
 

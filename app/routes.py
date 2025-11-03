@@ -100,7 +100,7 @@ class RouteManager:
                         controls=[
                             ft.Container(
                                 content=ft.Text("新規作成", size=16, weight=ft.FontWeight.BOLD),
-                                border=ft.border.all(3, ft.colors.BLUE),
+                                border=ft.border.all(3, ft.colors.BLUE),  # type: ignore[attr-defined]
                                 padding=5,
                                 border_radius=5,
                             ),
@@ -132,7 +132,7 @@ class RouteManager:
                         controls=[
                             ft.Container(
                                 content=ft.Text("編集", size=16, weight=ft.FontWeight.BOLD),
-                                border=ft.border.all(3, ft.colors.BLUE),
+                                border=ft.border.all(3, ft.colors.BLUE),  # type: ignore[attr-defined]
                                 padding=5,
                                 border_radius=5,
                             ),
@@ -168,7 +168,7 @@ class RouteManager:
                         controls=[
                             ft.Container(
                                 content=ft.Text("テンプレート", size=16, weight=ft.FontWeight.BOLD),
-                                border=ft.border.all(3, ft.colors.BLUE),
+                                border=ft.border.all(3, ft.colors.BLUE),  # type: ignore[attr-defined]
                                 padding=5,
                                 border_radius=5,
                             ),
