@@ -106,6 +106,7 @@ class EventHandlers:
 
             session.close()
             self.page.update()
+            self.page.go("/edit")
 
     def _populate_form_from_patient_info(self, patient_info, session):
         """患者情報からフォームを設定"""
