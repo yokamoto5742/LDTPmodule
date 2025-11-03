@@ -9,8 +9,8 @@ class ProjectStructureGenerator:
         self.ignore_patterns = {
             '__pycache__', '*.pyc', '*.pyo', '*.pyd', '.pytest_cache',
             '*.egg-info', 'dist', '.tox', '.coverage', 'htmlcov','.claude','.serena',
-            '.venv', 'venv', '.env', 'env', 'tests','nul','logs','assets',
-            '.vscode', '.idea', '*.swp', '*.swo', '*~',
+            '.venv', 'venv', '.env', 'env', 'tests','nul','logs','assets','alembic',
+            '.vscode', '.idea', '*.swp', '*.swo', '*~','scripts','__init__.py',
             '.git', '.gitignore', '.hg', '.svn',
             '.DS_Store', 'Thumbs.db', 'desktop.ini','pytest.ini',
             'node_modules', '.npm',

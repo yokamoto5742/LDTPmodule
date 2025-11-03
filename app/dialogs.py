@@ -1,10 +1,9 @@
 import os
-from pathlib import Path
 
 import flet as ft
 
-from app import __version__ as VERSION
 from app import __date__ as LAST_UPDATED
+from app import __version__ as VERSION
 from services.data_export_service import export_to_csv, import_from_csv
 
 
