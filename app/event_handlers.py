@@ -397,7 +397,7 @@ class EventHandlers:
         if selected_main_disease and selected_sheet_name:
             session = Session()
             template = session.query(Template).filter_by(
-                main_diagnosis=selected_main_disease,
+                main_disease=selected_main_disease,
                 sheet_name=selected_sheet_name
             ).first()
 
