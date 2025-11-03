@@ -411,30 +411,21 @@ class EventHandlers:
         """テンプレートをフィールドに適用"""
         fields = self.fields
 
-        fields['target_weight'].value = template.target_weight
         fields['target_bp'].value = template.target_bp
         fields['target_hba1c'].value = template.target_hba1c
         fields['goal1'].value = template.goal1
         fields['goal2'].value = template.goal2
-        fields['target_achievement'].value = template.target_achievement
         fields['diet1'].value = template.diet1
         fields['diet2'].value = template.diet2
         fields['diet3'].value = template.diet3
         fields['diet4'].value = template.diet4
-        fields['diet_comment'].value = template.diet_comment
         fields['exercise_prescription'].value = template.exercise_prescription
         fields['exercise_time'].value = template.exercise_time
         fields['exercise_frequency'].value = template.exercise_frequency
         fields['exercise_intensity'].value = template.exercise_intensity
         fields['daily_activity'].value = template.daily_activity
-        fields['exercise_comment'].value = template.exercise_comment
-        fields['nonsmoker'].value = template.nonsmoker
-        fields['smoking_cessation'].value = template.smoking_cessation
         fields['other1'].value = template.other1
         fields['other2'].value = template.other2
-        fields['ophthalmology'].value = template.ophthalmology
-        fields['dental'].value = template.dental
-        fields['cancer_screening'].value = template.cancer_screening
 
     def save_template(self, e):
         """テンプレート保存ハンドラ"""
@@ -448,13 +439,13 @@ class EventHandlers:
 
         session = Session()
         template = session.query(Template).filter_by(
-            main_diagnosis=main_diagnosis.value,
+            main_disease=main_diagnosis.value,
             sheet_name=sheet_name_dropdown.value
         ).first()
 
         if not template:
             template = Template(
-                main_diagnosis=main_diagnosis.value,
+                main_disease=main_diagnosis.value,
                 sheet_name=sheet_name_dropdown.value
             )
             session.add(template)
@@ -469,30 +460,21 @@ class EventHandlers:
         """フィールドからテンプレートを更新"""
         fields = self.fields
 
-        template.target_weight = fields['target_weight'].value
         template.target_bp = fields['target_bp'].value
         template.target_hba1c = fields['target_hba1c'].value
         template.goal1 = fields['goal1'].value
         template.goal2 = fields['goal2'].value
-        template.target_achievement = fields['target_achievement'].value
         template.diet1 = fields['diet1'].value
         template.diet2 = fields['diet2'].value
         template.diet3 = fields['diet3'].value
         template.diet4 = fields['diet4'].value
-        template.diet_comment = fields['diet_comment'].value
         template.exercise_prescription = fields['exercise_prescription'].value
         template.exercise_time = fields['exercise_time'].value
         template.exercise_frequency = fields['exercise_frequency'].value
         template.exercise_intensity = fields['exercise_intensity'].value
         template.daily_activity = fields['daily_activity'].value
-        template.exercise_comment = fields['exercise_comment'].value
-        template.nonsmoker = fields['nonsmoker'].value
-        template.smoking_cessation = fields['smoking_cessation'].value
         template.other1 = fields['other1'].value
         template.other2 = fields['other2'].value
-        template.ophthalmology = fields['ophthalmology'].value
-        template.dental = fields['dental'].value
-        template.cancer_screening = fields['cancer_screening'].value
 
     def load_patient_info(self, patient_id_arg):
         """患者情報を読み込む"""
