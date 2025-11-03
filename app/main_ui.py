@@ -31,7 +31,7 @@ def create_ui(page: ft.Page):
     page.window.width = config.getint("settings", "window_width", fallback=1200)
     page.window.height = config.getint("settings", "window_height", fallback=900)
     page.scroll = ft.ScrollMode.AUTO
-    page.theme_mode = ft.ThemeMode.LIGHT
+    page.theme_mode = ft.ThemeMode.SYSTEM
 
     # スタートアップハンドラ
     def on_startup(e):

@@ -352,39 +352,19 @@ class EventHandlers:
             self.dialog_manager.show_error_message("削除するデータが選択されていません")
             return
 
-        def confirm_delete(e):
-            session = Session()
-            patient_info = session.query(PatientInfo).filter(
-                PatientInfo.id == self.selected_row['id']).first()
+        session = Session()
+        patient_info = session.query(PatientInfo).filter(
+            PatientInfo.id == self.selected_row['id']).first()
 
-            if patient_info:
-                patient_id_val = patient_info.patient_id
-                session.delete(patient_info)
-                session.commit()
-                self.dialog_manager.show_info_message("データが削除されました")
-                self.selected_row = None
-                self.update_history(patient_id_val)
+        if patient_info:
+            patient_id_val = patient_info.patient_id
+            session.delete(patient_info)
+            session.commit()
+            self.selected_row = None
+            self.update_history(patient_id_val)
 
-            session.close()
-            delete_dialog.open = False
-            self.page.update()
-
-        def cancel_delete(e):
-            delete_dialog.open = False
-            self.page.update()
-
-        delete_dialog = ft.AlertDialog(
-            title=ft.Text("確認"),
-            content=ft.Text("本当に削除しますか?"),
-            actions=[
-                ft.TextButton("はい", on_click=confirm_delete),
-                ft.TextButton("いいえ", on_click=cancel_delete)
-            ]
-        )
-
-        self.page.overlay.append(delete_dialog)
-        delete_dialog.open = True
-        self.page.update()
+        session.close()
+        self.page.go("/")
 
     def apply_template(self, e):
         """テンプレート適用ハンドラ"""
