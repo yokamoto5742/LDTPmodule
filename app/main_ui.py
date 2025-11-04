@@ -25,7 +25,7 @@ def create_ui(page: ft.Page):
     export_folder = config.get("FilePaths", "export_folder")
     manual_pdf_path = config.get("FilePaths", "manual_pdf", fallback="")
 
-    page.title = "LDTPapp"
+    page.title = "生活習慣病療養計画書アプリ"
     page.window.width = config.getint("settings", "window_width", fallback=1200)
     page.window.height = config.getint("settings", "window_height", fallback=900)
     page.scroll = ft.ScrollMode.AUTO
@@ -75,7 +75,7 @@ def create_ui(page: ft.Page):
         label="主病名",
         options=main_disease_options,
         width=350,
-        border_color=ft.colors.BLUE,  # type: ignore[attr-defined]
+        border_color=ft.colors.BLUE,
         border_width=2,
     )
 
@@ -84,7 +84,7 @@ def create_ui(page: ft.Page):
         label="シート名",
         options=sheet_name_options,
         width=350,
-        border_color=ft.colors.BLUE,  # type: ignore[attr-defined]
+        border_color=ft.colors.BLUE,
         border_width=2,
     )
 
@@ -207,7 +207,7 @@ def create_ui(page: ft.Page):
 
     # EventHandlersにupdate_historyを設定
     event_handlers.update_history = update_history
-    event_handlers.fetch_data = fetch_data  # type: ignore[assignment]
+    event_handlers.fetch_data = fetch_data
 
     # DialogManagerにupdate_history_callbackを設定
     dialog_manager.update_history_callback = update_history
@@ -236,11 +236,11 @@ def create_ui(page: ft.Page):
 
     # ボタンハンドラ辞書の作成
     button_handlers = {
-        'open_create': lambda e: route_manager.open_create(e) if route_manager else None,  # type: ignore[union-attr]
-        'open_edit': lambda e: route_manager.open_edit(e) if route_manager else None,  # type: ignore[union-attr]
-        'open_template': lambda e: route_manager.open_template(e) if route_manager else None,  # type: ignore[union-attr]
-        'open_route': lambda e: route_manager.open_route(e) if route_manager else None,  # type: ignore[union-attr]
-        'on_close': lambda e: route_manager.on_close(e) if route_manager else None,  # type: ignore[union-attr]
+        'open_create': lambda e: route_manager.open_create(e) if route_manager else None,
+        'open_edit': lambda e: route_manager.open_edit(e) if route_manager else None,
+        'open_template': lambda e: route_manager.open_template(e) if route_manager else None,
+        'open_route': lambda e: route_manager.open_route(e) if route_manager else None,
+        'on_close': lambda e: route_manager.on_close(e) if route_manager else None,
         'copy_data': event_handlers.copy_data,
         'delete_data': event_handlers.delete_data,
         'create_new_plan': event_handlers.create_new_plan,
@@ -263,12 +263,12 @@ def create_ui(page: ft.Page):
     )
     manual_button = ft.ElevatedButton(
         "操作マニュアル",
-        on_click=lambda e: route_manager.open_manual_pdf(e) if route_manager else None,  # type: ignore[union-attr]
+        on_click=lambda e: route_manager.open_manual_pdf(e) if route_manager else None,
         **button_style
     )
     issue_date_button = ft.ElevatedButton(
         "日付選択",
-        icon=ft.icons.CALENDAR_TODAY,  # type: ignore[attr-defined]
+        icon=ft.icons.CALENDAR_TODAY,
         on_click=open_date_picker,
         **button_style
     )
@@ -295,7 +295,7 @@ def create_ui(page: ft.Page):
         'issue_date_picker': issue_date_picker,
     }
 
-    # ルートマネージャーの初期化（完全版）
+    # ルートマネージャーの完全初期化
     route_manager = RouteManager(page, fields, ui_elements, event_handlers, manual_pdf_path)
 
     # ページレイアウトの設定
@@ -313,7 +313,7 @@ def create_ui(page: ft.Page):
         update_history(patient_id.value)
 
     # イベントハンドラの設定
-    page.window.on_resized = on_startup  # type: ignore[assignment]
-    page.on_route_change = route_manager.route_change  # type: ignore[union-attr]
-    page.on_view_pop = route_manager.view_pop  # type: ignore[union-attr]
+    page.window.on_resized = on_startup
+    page.on_route_change = route_manager.route_change
+    page.on_view_pop = route_manager.view_pop
     page.go(page.route)
