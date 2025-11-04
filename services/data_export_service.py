@@ -11,7 +11,7 @@ Session = get_session_factory()
 
 def export_to_csv(export_folder):
     """CSV出力"""
-    # CSVファイル名を現在の日時で生成
+    # 現在の日時でCSVファイル名を生成
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     csv_filename = f"patient_info_export_{timestamp}.csv"
     csv_path = os.path.join(export_folder, csv_filename)

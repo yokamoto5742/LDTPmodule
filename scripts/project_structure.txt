@@ -1,7 +1,7 @@
 ============================================================
 プロジェクト構造: LDTPmodule
 パス: C:\Users\yokam\PycharmProjects\LDTPmodule
-生成日時: 2025-11-03 15:00:24
+生成日時: 2025-11-04 14:55:52
 ============================================================
 
 └── LDTPmodule
@@ -42,3 +42,5 @@
     ├── CLAUDE.md
     ├── ldtp_app.db
     ├── main.py
+    ├── pyrightconfig.json
+    └── refactoringplan.md

@@ -214,7 +214,7 @@ class TestEventHandlers:
         # 非喫煙者がFalseになることを確認
         assert sample_fields['nonsmoker'].value is False
 
-    @patch('app.event_handlers.Session')
+    @patch('app.event_handlers.treatment_plan_operations.Session')
     def test_create_treatment_plan_object(self, mock_session_class, mock_page, sample_fields, sample_df_patients):
         """療養計画書オブジェクト作成テスト"""
         dialog_manager = DialogManager(mock_page, sample_fields)
@@ -229,7 +229,7 @@ class TestEventHandlers:
         assert patient_info.doctor_name == '山田医師'
         assert patient_info.main_diagnosis == '糖尿病'
 
-    @patch('app.event_handlers.Session')
+    @patch('app.event_handlers.treatment_plan_operations.Session')
     def test_create_treatment_plan_object_patient_not_found(
         self, mock_session_class, mock_page, sample_fields, sample_df_patients
     ):
