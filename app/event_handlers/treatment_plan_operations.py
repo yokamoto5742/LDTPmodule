@@ -9,7 +9,7 @@ Session = get_session_factory()
 
 
 class TreatmentPlanOperationsMixin:
-    """療養計画書操作を提供するMixin"""
+    """計画書操作を提供するMixin"""
 
     def create_new_plan(self, e):
         """新規作成ハンドラ"""
@@ -42,7 +42,7 @@ class TreatmentPlanOperationsMixin:
                                 department, int(department_id), self.df_patients)
 
     def create_treatment_plan_object(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
-        """生活習慣病療養計画書オブジェクトを作成"""
+        """生活習慣病計画書オブジェクトを作成"""
         patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
         if patient_info_csv.empty:
             raise ValueError(f"患者ID {p_id} が見つかりません。")
@@ -95,7 +95,7 @@ class TreatmentPlanOperationsMixin:
         )
 
     def create_treatment_plan(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
-        """療養計画書を作成"""
+        """計画書を作成"""
         try:
             patient_info = self.create_treatment_plan_object(
                 p_id, doctor_id, doctor_name, department, department_id, patients_df)
@@ -104,7 +104,7 @@ class TreatmentPlanOperationsMixin:
             self.dialog_manager.show_error_message(str(ve))
 
     def save_treatment_plan(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
-        """療養計画書を保存"""
+        """計画書を保存"""
         try:
             patient_info = self.create_treatment_plan_object(
                 p_id, doctor_id, doctor_name, department, department_id, patients_df)
