@@ -19,7 +19,7 @@
   - 開発ガイドラインとコーディング規約
   - トラブルシューティングセクション
 
-## [2.0.1] - 2025-11-03
+## [2.0.1]- 2025-11-03
 
 ### 変更
 - リファクタリング計画書の削除に伴うドキュメント変更反映
@@ -33,6 +33,3 @@
 - ドロップダウンの色設定を一貫性のある色に修正
 - utils/config_manager.py の修正済みパス取得方法を調整
 - utils/file_utils.py のコメント日本語表記を整形
-
-[Unreleased]: https://github.com/yourusername/LDTPmodule/compare/v2.0.1...HEAD
-[2.0.1]: https://github.com/yourusername/LDTPmodule/releases/tag/v2.0.1
