@@ -2,8 +2,8 @@ import os
 
 import flet as ft
 
-from app import __date__ as LAST_UPDATED
-from app import __version__ as VERSION
+from app import __date__
+from app import __version__
 from services.data_export_service import export_to_csv, import_from_csv
 
 
@@ -66,7 +66,7 @@ class DialogManager:
 
         content = ft.Container(
             content=ft.Column([
-                ft.Text(f"LDTPapp\nバージョン: {VERSION}\n最終更新日: {LAST_UPDATED}"),
+                ft.Text(f"LDTPapp\nバージョン: {__version__}\n最終更新日: {__date__}"),
                 ft.ElevatedButton("CSV出力", on_click=csv_export),
                 ft.ElevatedButton("CSV取込", on_click=lambda _: self.file_picker.pick_files()),
             ]),
