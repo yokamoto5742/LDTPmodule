@@ -1,23 +1,8 @@
 from datetime import date
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from database import get_base
 from models.patient_info import PatientInfo
-
-
-@pytest.fixture
-def test_db():
-    """テスト用のインメモリSQLiteデータベースを作成"""
-    Base = get_base()
-    engine = create_engine('sqlite:///:memory:')
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    yield session
-    session.close()
 
 
 @pytest.fixture

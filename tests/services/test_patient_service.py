@@ -1,13 +1,10 @@
 import configparser
 from datetime import date
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from database import get_base
 from models import MainDisease, PatientInfo, SheetName
 from services.patient_service import (
     fetch_patient_history,
@@ -15,18 +12,6 @@ from services.patient_service import (
     load_patient_data,
     load_sheet_names,
 )
-
-
-@pytest.fixture
-def test_db():
-    """テスト用のインメモリデータベース"""
-    Base = get_base()
-    engine = create_engine('sqlite:///:memory:')
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    yield session
-    session.close()
 
 
 @pytest.fixture
