@@ -46,7 +46,7 @@ def create_data_rows(data, on_row_selected):
 
 def build_history_table(table_width):
     """
-    履歴テーブルを構築
+    計画書一覧テーブルを構築
 
     Args:
         table_width: テーブルの幅
