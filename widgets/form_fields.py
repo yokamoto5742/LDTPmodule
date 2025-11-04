@@ -7,12 +7,12 @@ def create_blue_outlined_dropdown(dropdown_items, key, label, width):
         label=label,
         width=width,
         options=dropdown_items.get_options(key),
-        border_color=ft.colors.BLUE,  # type: ignore[attr-defined]
+        border_color=ft.colors.BLUE,
         border_width=3,
-        focused_border_color=ft.colors.BLUE,  # type: ignore[attr-defined]
+        focused_border_color=ft.colors.BLUE,
         focused_border_width=3,
         text_style=ft.TextStyle(size=13),
-        color=ft.colors.ON_SURFACE,  # type: ignore[attr-defined]
+        color=ft.colors.ON_SURFACE,
     )
 
 
