@@ -78,7 +78,7 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ft.Text("計画書一覧", size=16),
-                            ft.Text("計画書をクリックすると編集画面が開きます", size=14),
+                            ft.Text("計画書を左クリックすると編集画面が開きます", size=14),
                         ]
                     ),
                     ft.Divider(),
@@ -100,7 +100,7 @@ class RouteManager:
                         controls=[
                             ft.Container(
                                 content=ft.Text("新規作成", size=16, weight=ft.FontWeight.BOLD),
-                                border=ft.border.all(3, ft.colors.BLUE),  # type: ignore[attr-defined]
+                                border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,
                             ),
@@ -132,7 +132,7 @@ class RouteManager:
                         controls=[
                             ft.Container(
                                 content=ft.Text("編集", size=16, weight=ft.FontWeight.BOLD),
-                                border=ft.border.all(3, ft.colors.BLUE),  # type: ignore[attr-defined]
+                                border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,
                             ),
@@ -168,7 +168,7 @@ class RouteManager:
                         controls=[
                             ft.Container(
                                 content=ft.Text("テンプレート", size=16, weight=ft.FontWeight.BOLD),
-                                border=ft.border.all(3, ft.colors.BLUE),  # type: ignore[attr-defined]
+                                border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,
                             ),
@@ -247,12 +247,12 @@ class RouteManager:
         self.page.update()
 
     def open_manual_pdf(self, e):
-        """操作マニュアルPDFを開く"""
+        """操作マニュアルを開く"""
         if self.manual_pdf_path and os.path.exists(self.manual_pdf_path):
             try:
                 os.startfile(self.manual_pdf_path)
             except Exception as ex:
-                error_message = f"PDFを開けませんでした: {str(ex)}"
+                error_message = f"操作マニュアルを開けませんでした: {str(ex)}"
                 error_snack_bar = ft.SnackBar(content=ft.Text(error_message), duration=1000)
                 error_snack_bar.open = True
                 self.page.overlay.append(error_snack_bar)
