@@ -6,7 +6,7 @@ import sys
 def get_config_path():
     if getattr(sys, 'frozen', False):
         # PyInstallerでビルドされた実行ファイルの場合
-        base_path = sys._MEIPASS  # type: ignore[attr-defined]
+        base_path = sys._MEIPASS
     else:
         # 通常のPythonスクリプトとして実行される場合
         base_path = os.path.dirname(__file__)
@@ -21,7 +21,7 @@ CONFIG_PATH = get_config_path()
 def load_config() -> configparser.ConfigParser:
     config = configparser.ConfigParser()
     try:
-        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+        with open(CONFIG_PATH, encoding='utf-8') as f:
             config.read_file(f)
     except FileNotFoundError:
         print(f"設定ファイルが見つかりません: {CONFIG_PATH}")

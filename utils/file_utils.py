@@ -7,7 +7,7 @@ import win32com.client
 
 
 def close_excel_if_needed(target_path):
-    """特定のExcelファイルが開いているか確認し、必要なら閉じる"""
+    """特定のExcelファイルが開いているか確認し必要なら閉じる"""
     target_path = os.path.abspath(target_path).lower()
 
     try:
