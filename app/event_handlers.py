@@ -108,7 +108,7 @@ class EventHandlers:
             self.page.go("/edit")
 
     def _populate_form_from_patient_info(self, patient_info, session):
-        """患者情報からフォームを設定"""
+        """患者情報から登録フォームを設定"""
         fields = self.fields
 
         fields['patient_id'].value = patient_info.patient_id
@@ -219,7 +219,7 @@ class EventHandlers:
         self.page.update()
 
     def _update_patient_info_from_form(self, patient_info, include_basic_info=False):
-        """フォームから患者情報を更新"""
+        """登録フォームから患者情報を更新"""
         fields = self.fields
 
         if include_basic_info:
@@ -488,7 +488,7 @@ class EventHandlers:
         self.page.update()
 
     def create_treatment_plan_object(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
-        """療養計画書オブジェクトを作成"""
+        """生活習慣病療養計画書オブジェクトを作成"""
         patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
         if patient_info_csv.empty:
             raise ValueError(f"患者ID {p_id} が見つかりません。")
@@ -566,9 +566,9 @@ class EventHandlers:
             self.dialog_manager.show_error_message(str(ve))
 
     def update_history(self, filter_patient_id=None):
-        """履歴を更新 - サブクラスでオーバーライド"""
+        """履歴を更新 サブクラスでオーバーライド"""
         pass
 
     def fetch_data(self, filter_patient_id=None):
-        """データを取得 - サブクラスでオーバーライド"""
+        """データを取得 サブクラスでオーバーライド"""
         pass
