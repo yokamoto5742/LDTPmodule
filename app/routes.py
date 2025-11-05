@@ -8,7 +8,7 @@ from flet import View
 class RouteManager:
     """ルーティングを管理するクラス"""
 
-    def __init__(self, page, fields, ui_elements, event_handlers, manual_pdf_path, font_size=13):
+    def __init__(self, page, fields, ui_elements, event_handlers, manual_pdf_path, font_size=13, heading_font_size=16):
         """
         初期化
 
@@ -19,6 +19,7 @@ class RouteManager:
             event_handlers: EventHandlersインスタンス
             manual_pdf_path: 操作マニュアルのパス
             font_size: フォントサイズ
+            heading_font_size: 見出しフォントサイズ
         """
         self.page = page
         self.fields = fields
@@ -26,6 +27,7 @@ class RouteManager:
         self.event_handlers = event_handlers
         self.manual_pdf_path = manual_pdf_path
         self.font_size = font_size
+        self.heading_font_size = heading_font_size
 
     def route_change(self, e):
         """ルート変更処理"""
@@ -79,7 +81,7 @@ class RouteManager:
                     ),
                     ft.Row(
                         controls=[
-                            ft.Text("計画書一覧", size=self.font_size + 3),
+                            ft.Text("計画書一覧", size=self.heading_font_size),
                             ft.Text("計画書を左クリックすると編集画面が開きます", size=self.font_size + 1),
                         ]
                     ),
@@ -101,7 +103,7 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ft.Container(
-                                content=ft.Text("新規作成", size=self.font_size + 3, weight=ft.FontWeight.BOLD),
+                                content=ft.Text("新規作成", size=self.heading_font_size, weight=ft.FontWeight.BOLD),
                                 border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,
@@ -133,7 +135,7 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ft.Container(
-                                content=ft.Text("編集", size=self.font_size + 3, weight=ft.FontWeight.BOLD),
+                                content=ft.Text("編集", size=self.heading_font_size, weight=ft.FontWeight.BOLD),
                                 border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,
@@ -169,7 +171,7 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ft.Container(
-                                content=ft.Text("テンプレート", size=self.font_size + 3, weight=ft.FontWeight.BOLD),
+                                content=ft.Text("テンプレート", size=self.heading_font_size, weight=ft.FontWeight.BOLD),
                                 border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,

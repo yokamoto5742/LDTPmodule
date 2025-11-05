@@ -22,6 +22,7 @@ def create_ui(page: ft.Page):
     input_height = config.getint("UI", "input_height", fallback=60)
     text_height = config.getint("UI", "text_height", fallback=60)
     font_size = config.getint("UI", "font_size", fallback=13)
+    heading_font_size = config.getint("UI", "heading_font_size", fallback=16)
     table_width = config.getint("DataTable", "width", fallback=1200)
     export_folder = config.get("FilePaths", "export_folder")
     manual_pdf_path = config.get("FilePaths", "manual_pdf", fallback="")
@@ -297,7 +298,7 @@ def create_ui(page: ft.Page):
     }
 
     # ルートマネージャーの完全初期化
-    route_manager = RouteManager(page, fields, ui_elements, event_handlers, manual_pdf_path, font_size)
+    route_manager = RouteManager(page, fields, ui_elements, event_handlers, manual_pdf_path, font_size, heading_font_size)
 
     # ページレイアウトの設定
     layout = ft.Column([
