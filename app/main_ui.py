@@ -21,6 +21,7 @@ def create_ui(page: ft.Page):
     config = load_config()
     input_height = config.getint("UI", "input_height", fallback=60)
     text_height = config.getint("UI", "text_height", fallback=60)
+    font_size = config.getint("UI", "font_size", fallback=13)
     table_width = config.getint("DataTable", "width", fallback=1200)
     export_folder = config.get("FilePaths", "export_folder")
     manual_pdf_path = config.get("FilePaths", "manual_pdf", fallback="")
@@ -88,47 +89,47 @@ def create_ui(page: ft.Page):
         border_width=2,
     )
 
-    creation_count = ft.TextField(label="作成回数", value="1", width=80, text_size=13, height=text_height)
+    creation_count = ft.TextField(label="作成回数", value="1", width=80, text_size=font_size, height=text_height)
 
     # 目標フィールドの作成
-    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13, height=input_height)
-    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13, height=input_height)
-    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13, height=input_height)
+    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=font_size, height=input_height)
+    target_bp = ft.TextField(label="目標血圧", width=150, text_size=font_size, height=input_height)
+    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=font_size, height=input_height)
     goal1 = ft.TextField(
         label="①達成目標：患者と相談した目標",
         width=800,
         value="主病名とシート名を選択してください",
-        text_size=13,
+        text_size=font_size,
         height=text_height
     )
     goal2 = ft.TextField(
         label="②行動目標：患者と相談した目標",
         width=800,
-        text_size=13,
+        text_size=font_size,
         height=text_height
     )
 
     # フォームフィールドの作成
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-     daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items, input_height)
+     daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items, input_height, font_size)
 
     diet_comment = ft.TextField(
         label="食事フリーコメント",
         width=800,
-        text_size=13,
+        text_size=font_size,
         height=text_height
     )
     exercise_comment = ft.TextField(
         label="運動フリーコメント",
         width=800,
-        text_size=13,
+        text_size=font_size,
         height=text_height
     )
 
     nonsmoker = ft.Checkbox(label="非喫煙者である", height=text_height)
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示", height=text_height)
-    other1 = ft.TextField(label="その他1", value="", width=400, text_size=13, height=text_height)
-    other2 = ft.TextField(label="その他2", value="", width=400, text_size=13, height=text_height)
+    other1 = ft.TextField(label="その他1", value="", width=400, text_size=font_size, height=text_height)
+    other2 = ft.TextField(label="その他2", value="", width=400, text_size=font_size, height=text_height)
     ophthalmology = ft.Checkbox(label="眼科", height=text_height)
     dental = ft.Checkbox(label="歯科", height=text_height)
     cancer_screening = ft.Checkbox(label="がん検診", height=text_height)
@@ -276,8 +277,8 @@ def create_ui(page: ft.Page):
     issue_date_row = ft.Row([issue_date_value, issue_date_button])
 
     # 指導項目レイアウトの作成
-    guidance_items = build_guidance_items(fields, text_height)
-    guidance_items_template = build_guidance_items_template(fields, text_height)
+    guidance_items = build_guidance_items(fields, text_height, font_size)
+    guidance_items_template = build_guidance_items_template(fields, text_height, font_size)
 
     # UI要素辞書の作成
     ui_elements = {
@@ -296,7 +297,7 @@ def create_ui(page: ft.Page):
     }
 
     # ルートマネージャーの完全初期化
-    route_manager = RouteManager(page, fields, ui_elements, event_handlers, manual_pdf_path)
+    route_manager = RouteManager(page, fields, ui_elements, event_handlers, manual_pdf_path, font_size)
 
     # ページレイアウトの設定
     layout = ft.Column([

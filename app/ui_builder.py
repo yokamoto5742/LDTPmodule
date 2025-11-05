@@ -173,13 +173,14 @@ def build_template_buttons(page, handlers, button_style):
     )
 
 
-def build_guidance_items(fields, text_height):
+def build_guidance_items(fields, text_height, font_size=13):
     """
     指導項目のレイアウトを構築
 
     Args:
         fields: フォームフィールドの辞書
         text_height: テキストフィールドの高さ
+        font_size: フォントサイズ
 
     Returns:
         Columnコントロール
@@ -187,9 +188,9 @@ def build_guidance_items(fields, text_height):
     return ft.Column([
         ft.Row([
             fields['target_achievement'],
-            fields['target_weight'], ft.Text("kg", size=13),
-            fields['target_bp'], ft.Text("mmHg", size=13),
-            fields['target_hba1c'], ft.Text("%", size=13),
+            fields['target_weight'], ft.Text("kg", size=font_size),
+            fields['target_bp'], ft.Text("mmHg", size=font_size),
+            fields['target_hba1c'], ft.Text("%", size=font_size),
         ]),
         ft.Row([
             fields['diet1'], fields['diet2'], fields['diet3'], fields['diet4']
@@ -213,13 +214,14 @@ def build_guidance_items(fields, text_height):
     ])
 
 
-def build_guidance_items_template(fields, text_height):
+def build_guidance_items_template(fields, text_height, font_size=13):
     """
     テンプレート用の指導項目のレイアウトを構築
 
     Args:
         fields: フォームフィールドの辞書
         text_height: テキストフィールドの高さ
+        font_size: フォントサイズ
 
     Returns:
         Columnコントロール
@@ -227,9 +229,9 @@ def build_guidance_items_template(fields, text_height):
     return ft.Column([
         ft.Row([
             fields['target_achievement'],
-            fields['target_weight'], ft.Text("kg", size=13),
-            fields['target_bp'], ft.Text("mmHg", size=13),
-            fields['target_hba1c'], ft.Text("%", size=13),
+            fields['target_weight'], ft.Text("kg", size=font_size),
+            fields['target_bp'], ft.Text("mmHg", size=font_size),
+            fields['target_hba1c'], ft.Text("%", size=font_size),
         ]),
         ft.Row([
             fields['diet1'], fields['diet2'], fields['diet3'], fields['diet4']

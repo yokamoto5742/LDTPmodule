@@ -8,7 +8,7 @@ from flet import View
 class RouteManager:
     """ルーティングを管理するクラス"""
 
-    def __init__(self, page, fields, ui_elements, event_handlers, manual_pdf_path):
+    def __init__(self, page, fields, ui_elements, event_handlers, manual_pdf_path, font_size=13):
         """
         初期化
 
@@ -18,12 +18,14 @@ class RouteManager:
             ui_elements: UI要素の辞書（buttons, guidance_items等）
             event_handlers: EventHandlersインスタンス
             manual_pdf_path: 操作マニュアルのパス
+            font_size: フォントサイズ
         """
         self.page = page
         self.fields = fields
         self.ui_elements = ui_elements
         self.event_handlers = event_handlers
         self.manual_pdf_path = manual_pdf_path
+        self.font_size = font_size
 
     def route_change(self, e):
         """ルート変更処理"""
@@ -72,13 +74,13 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ui['buttons'],
-                            ft.Text("(SOAP画面を閉じるとアプリは終了します)", size=12)
+                            ft.Text("(SOAP画面を閉じるとアプリは終了します)", size=self.font_size - 1)
                         ]
                     ),
                     ft.Row(
                         controls=[
-                            ft.Text("計画書一覧", size=16),
-                            ft.Text("計画書を左クリックすると編集画面が開きます", size=14),
+                            ft.Text("計画書一覧", size=self.font_size + 3),
+                            ft.Text("計画書を左クリックすると編集画面が開きます", size=self.font_size + 1),
                         ]
                     ),
                     ft.Divider(),
@@ -99,7 +101,7 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ft.Container(
-                                content=ft.Text("新規作成", size=16, weight=ft.FontWeight.BOLD),
+                                content=ft.Text("新規作成", size=self.font_size + 3, weight=ft.FontWeight.BOLD),
                                 border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,
@@ -107,7 +109,7 @@ class RouteManager:
                             fields['main_diagnosis'],
                             fields['sheet_name_dropdown'],
                             fields['creation_count'],
-                            ft.Text("回目", size=14),
+                            ft.Text("回目", size=self.font_size + 1),
                             ui['issue_date_row'],
                         ]
                     ),
@@ -131,7 +133,7 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ft.Container(
-                                content=ft.Text("編集", size=16, weight=ft.FontWeight.BOLD),
+                                content=ft.Text("編集", size=self.font_size + 3, weight=ft.FontWeight.BOLD),
                                 border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,
@@ -139,7 +141,7 @@ class RouteManager:
                             fields['main_diagnosis'],
                             fields['sheet_name_dropdown'],
                             fields['creation_count'],
-                            ft.Text("回目", size=14),
+                            ft.Text("回目", size=self.font_size + 1),
                             ui['issue_date_row'],
                         ]
                     ),
@@ -167,7 +169,7 @@ class RouteManager:
                     ft.Row(
                         controls=[
                             ft.Container(
-                                content=ft.Text("テンプレート", size=16, weight=ft.FontWeight.BOLD),
+                                content=ft.Text("テンプレート", size=self.font_size + 3, weight=ft.FontWeight.BOLD),
                                 border=ft.border.all(3, ft.colors.BLUE),
                                 padding=5,
                                 border_radius=5,

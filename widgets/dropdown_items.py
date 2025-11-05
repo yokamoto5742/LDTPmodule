@@ -22,13 +22,13 @@ class DropdownItems:
     def add_item(self, key, options):
         self.items[key] = options
 
-    def create_dropdown(self, key, label, width, on_change=None):
+    def create_dropdown(self, key, label, width, on_change=None, font_size=13):
         return ft.Dropdown(
             label=label,
             width=width,
             options=self.get_options(key),
             on_change=on_change,
-            text_style=ft.TextStyle(size=13),
+            text_style=ft.TextStyle(size=font_size),
             border_color=ft.colors.ON_SURFACE_VARIANT,
             focused_border_color=ft.colors.PRIMARY,
             color=ft.colors.ON_SURFACE,
