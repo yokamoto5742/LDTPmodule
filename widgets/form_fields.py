@@ -22,18 +22,18 @@ def create_form_fields(dropdown_items, input_height, font_size=13):
         dropdown_items,
         'target_achievement',
         "目標達成状況(2回目以降)",
-        400,
+        300,
         font_size
     )
-    diet1 = dropdown_items.create_dropdown('diet', "食事1", 400, font_size=font_size)
-    diet2 = dropdown_items.create_dropdown('diet', "食事2", 400, font_size=font_size)
-    diet3 = dropdown_items.create_dropdown('diet', "食事3", 400, font_size=font_size)
-    diet4 = dropdown_items.create_dropdown('diet', "食事4", 400, font_size=font_size)
+    diet1 = dropdown_items.create_dropdown('diet', "食事1", 250, font_size=font_size)
+    diet2 = dropdown_items.create_dropdown('diet', "食事2", 250, font_size=font_size)
+    diet3 = dropdown_items.create_dropdown('diet', "食事3", 250, font_size=font_size)
+    diet4 = dropdown_items.create_dropdown('diet', "食事4", 250, font_size=font_size)
     exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 200, font_size=font_size)
     exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200, font_size=font_size)
     exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 200, font_size=font_size)
     exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 200, font_size=font_size)
-    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量", 300, font_size=font_size)
+    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量", 200, font_size=font_size)
 
     for dropdown in [target_achievement, diet1, diet2, diet3, diet4, exercise_prescription,
                      exercise_time, exercise_frequency, exercise_intensity, daily_activity]:

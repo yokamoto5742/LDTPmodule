@@ -76,7 +76,7 @@ def create_ui(page: ft.Page):
     main_diagnosis = ft.Dropdown(
         label="主病名",
         options=main_disease_options,
-        width=350,
+        width=200,
         border_color=ft.colors.BLUE,
         border_width=2,
     )
@@ -85,7 +85,7 @@ def create_ui(page: ft.Page):
     sheet_name_dropdown = ft.Dropdown(
         label="シート名",
         options=sheet_name_options,
-        width=350,
+        width=300,
         border_color=ft.colors.BLUE,
         border_width=2,
     )
