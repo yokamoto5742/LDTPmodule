@@ -9,6 +9,7 @@ def main(page: ft.Page):
     """メインエントリーポイント"""
     # データベース初期化
     initialize_database()
+    seed_initial_data()
 
     # ファイル監視開始
     start_file_monitoring(page)
