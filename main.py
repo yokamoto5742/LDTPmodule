@@ -1,7 +1,7 @@
 import flet as ft
 
 from app.main_ui import create_ui
-from database.initializer import initialize_database
+from database.initializer import initialize_database, seed_initial_data
 from services.file_monitor_service import start_file_monitoring, check_file_exists
 
 
