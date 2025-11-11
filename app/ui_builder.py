@@ -124,8 +124,8 @@ def build_create_buttons(page, handlers, button_style):
     """
     return ft.Row(
         controls=[
-            ft.ElevatedButton("新規登録して印刷", on_click=handlers['create_new_plan'], **button_style),
             ft.ElevatedButton("新規登録", on_click=handlers['save_new_plan'], **button_style),
+            ft.ElevatedButton("印刷", on_click=handlers['create_new_plan'], **button_style),
             ft.ElevatedButton("戻る", on_click=handlers['open_route'], **button_style),
         ]
     )
