@@ -300,6 +300,9 @@ def create_ui(page: ft.Page):
     # ルートマネージャーの完全初期化
     route_manager = RouteManager(page, fields, ui_elements, event_handlers, manual_pdf_path, font_size, heading_font_size)
 
+    # イベントハンドラにルートマネージャーへの参照を設定
+    event_handlers.route_manager = route_manager
+
     # ページレイアウトの設定
     layout = ft.Column([
         ft.Row(controls=[])

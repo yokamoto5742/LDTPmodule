@@ -29,6 +29,7 @@ class EventHandlers(
         self.df_patients = df_patients
         self.dialog_manager = dialog_manager
         self.selected_row = None
+        self.route_manager = None
 
     def update_history(self, filter_patient_id=None):
         """履歴を更新 サブクラスでオーバーライド"""

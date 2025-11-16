@@ -41,6 +41,9 @@ class TreatmentPlanOperationsMixin:
         self.save_treatment_plan(int(p_id), int(doctor_id), doctor_name,
                                 department, int(department_id), self.df_patients)
 
+        if self.route_manager:
+            self.route_manager.open_route(e)
+
     def create_treatment_plan_object(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
         """生活習慣病計画書オブジェクトを作成"""
         patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
@@ -109,6 +112,10 @@ class TreatmentPlanOperationsMixin:
             patient_info = self.create_treatment_plan_object(
                 p_id, doctor_id, doctor_name, department, department_id, patients_df)
 
+            # エクセルファイルを生成
+            TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
+
+            # データベースに保存
             session = Session()
             session.add(patient_info)
             session.commit()
