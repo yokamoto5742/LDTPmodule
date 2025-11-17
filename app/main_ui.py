@@ -245,7 +245,7 @@ def create_ui(page: ft.Page):
         'on_close': lambda e: route_manager.on_close(e) if route_manager else None,
         'copy_data': event_handlers.copy_data,
         'delete_data': event_handlers.delete_data,
-        'create_new_plan': event_handlers.create_new_plan,
+        'create_new_plan': event_handlers.create_new_plan_and_print,
         'save_new_plan': event_handlers.save_new_plan,
         'save_data': event_handlers.save_data,
         'print_plan': event_handlers.print_plan,

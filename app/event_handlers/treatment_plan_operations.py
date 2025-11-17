@@ -11,7 +11,7 @@ Session = get_session_factory()
 class TreatmentPlanOperationsMixin:
     """計画書操作を提供するMixin"""
 
-    def create_new_plan(self, e):
+    def create_new_plan_and_print(self, e):
         """新規登録して印刷ハンドラ"""
         if not self.dialog_manager.check_required_fields():
             return
