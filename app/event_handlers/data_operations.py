@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from database import get_session_factory
 from models import PatientInfo
@@ -12,7 +13,15 @@ Session = get_session_factory()
 class DataOperationsMixin:
     """データ操作を提供するMixin"""
 
-    def save_data(self, e):
+    page: Any
+    fields: dict[str, Any]
+    dialog_manager: Any
+    selected_row: dict[str, Any] | None
+    _update_patient_info_from_form: Any
+    _populate_form_from_patient_info: Any
+    update_history: Any
+
+    def save_data(self, e: Any) -> None:
         """データ保存ハンドラ"""
         session = Session()
 
@@ -32,7 +41,7 @@ class DataOperationsMixin:
         session.close()
         self.page.update()
 
-    def copy_data(self, e):
+    def copy_data(self, e: Any) -> None:
         """データコピーハンドラ"""
         patient_id = self.fields['patient_id']
         session = Session()
@@ -101,7 +110,7 @@ class DataOperationsMixin:
 
         session.close()
 
-    def select_copied_data(self, copied_id):
+    def select_copied_data(self, copied_id: Any) -> None:
         """コピーしたデータを選択"""
         session = Session()
         patient_info = session.query(PatientInfo).filter(PatientInfo.id == copied_id).first()
@@ -114,7 +123,7 @@ class DataOperationsMixin:
         session.close()
         self.page.update()
 
-    def delete_data(self, e):
+    def delete_data(self, e: Any) -> None:
         """データ削除ハンドラ"""
         if self.selected_row is None:
             self.dialog_manager.show_error_message("削除するデータが選択されていません")
@@ -134,7 +143,7 @@ class DataOperationsMixin:
         session.close()
         self.page.go("/")
 
-    def print_plan(self, e):
+    def print_plan(self, e: Any) -> None:
         """印刷ハンドラ"""
         session = Session()
         if self.selected_row is not None:

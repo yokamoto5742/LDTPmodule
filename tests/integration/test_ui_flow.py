@@ -490,6 +490,14 @@ class TestUIFlowIntegration:
         route_manager.open_create(None)
         mock_page.go.assert_called_with("/create")
 
+        # 新規作成画面ではフィールドがクリアされることを確認
+        assert sample_fields['main_diagnosis'].value == ""
+        assert sample_fields['sheet_name_dropdown'].value == ""
+
+        # 必須フィールドを設定
+        sample_fields['main_diagnosis'].value = "2型糖尿病"
+        sample_fields['sheet_name_dropdown'].value = "シート1"
+
         # 必須フィールドチェック
         result = dialog_manager.check_required_fields()
         assert result is True

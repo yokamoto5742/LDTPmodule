@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from database import get_session_factory
 from models import PatientInfo
@@ -11,7 +12,13 @@ Session = get_session_factory()
 class TreatmentPlanOperationsMixin:
     """計画書操作を提供するMixin"""
 
-    def create_new_plan_and_print(self, e):
+    fields: dict[str, Any]
+    dialog_manager: Any
+    df_patients: Any
+    update_history: Any
+    route_manager: Any
+
+    def create_new_plan_and_print(self, e: Any) -> None:
         """新規登録して印刷ハンドラ"""
         if not self.dialog_manager.check_required_fields():
             return
@@ -46,7 +53,7 @@ class TreatmentPlanOperationsMixin:
         if self.route_manager:
             self.route_manager.open_route(e)
 
-    def save_new_plan(self, e):
+    def save_new_plan(self, e: Any) -> None:
         """新規登録ハンドラ"""
         if not self.dialog_manager.check_required_fields():
             return
@@ -64,7 +71,7 @@ class TreatmentPlanOperationsMixin:
         if self.route_manager:
             self.route_manager.open_route(e)
 
-    def create_treatment_plan_object(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
+    def create_treatment_plan_object(self, p_id: int, doctor_id: int, doctor_name: str, department: str, department_id: int, patients_df: Any) -> PatientInfo:
         """生活習慣病計画書オブジェクトを作成"""
         patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
         if patient_info_csv.empty:
@@ -117,7 +124,7 @@ class TreatmentPlanOperationsMixin:
             cancer_screening=fields['cancer_screening'].value
         )
 
-    def create_treatment_plan(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
+    def create_treatment_plan(self, p_id: int, doctor_id: int, doctor_name: str, department: str, department_id: int, patients_df: Any) -> None:
         """計画書を作成"""
         try:
             patient_info = self.create_treatment_plan_object(
@@ -126,7 +133,7 @@ class TreatmentPlanOperationsMixin:
         except ValueError as ve:
             self.dialog_manager.show_error_message(str(ve))
 
-    def save_treatment_plan(self, p_id, doctor_id, doctor_name, department, department_id, patients_df):
+    def save_treatment_plan(self, p_id: int, doctor_id: int, doctor_name: str, department: str, department_id: int, patients_df: Any) -> None:
         """計画書を保存"""
         try:
             patient_info = self.create_treatment_plan_object(

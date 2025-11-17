@@ -1,3 +1,5 @@
+from typing import Any
+
 from database import get_session_factory
 from models import MainDisease, PatientInfo
 from services.patient_service import load_sheet_names
@@ -8,7 +10,16 @@ Session = get_session_factory()
 class UIEventsMixin:
     """UIイベントハンドラを提供するMixin"""
 
-    def on_patient_id_change(self, e):
+    page: Any
+    fields: dict[str, Any]
+    dialog_manager: Any
+    selected_row: dict[str, Any] | None
+    load_patient_info: Any
+    update_history: Any
+    apply_template: Any
+    _populate_form_from_patient_info: Any
+
+    def on_patient_id_change(self, e: Any) -> None:
         """患者ID変更時のハンドラ"""
         patient_id = self.fields['patient_id']
         p_id = patient_id.value.strip()
@@ -16,14 +27,14 @@ class UIEventsMixin:
             self.load_patient_info(int(p_id))
         self.update_history(p_id)
 
-    def on_issue_date_change(self, e, issue_date_picker):
+    def on_issue_date_change(self, e: Any, issue_date_picker: Any) -> None:
         """発行日変更時のハンドラ"""
         issue_date_value = self.fields['issue_date_value']
         if issue_date_picker.value:
             issue_date_value.value = issue_date_picker.value.strftime("%Y/%m/%d")
             self.page.update()
 
-    def on_date_picker_dismiss(self, e, issue_date_picker):
+    def on_date_picker_dismiss(self, e: Any, issue_date_picker: Any) -> None:
         """日付ピッカー終了時のハンドラ"""
         issue_date_value = self.fields['issue_date_value']
         if issue_date_picker.value:
@@ -31,7 +42,7 @@ class UIEventsMixin:
         self.page.overlay.remove(issue_date_picker)
         self.page.update()
 
-    def on_main_diagnosis_change(self, e):
+    def on_main_diagnosis_change(self, e: Any) -> None:
         """主病名変更時のハンドラ"""
         main_diagnosis = self.fields['main_diagnosis']
         sheet_name_dropdown = self.fields['sheet_name_dropdown']
@@ -51,12 +62,12 @@ class UIEventsMixin:
         sheet_name_dropdown.value = ""
         self.page.update()
 
-    def on_sheet_name_change(self, e):
+    def on_sheet_name_change(self, e: Any) -> None:
         """シート名変更時のハンドラ"""
         self.apply_template(e)
         self.page.update()
 
-    def on_tobacco_checkbox_change(self, e):
+    def on_tobacco_checkbox_change(self, e: Any) -> None:
         """たばこチェックボックス変更時のハンドラ"""
         nonsmoker = self.fields['nonsmoker']
         smoking_cessation = self.fields['smoking_cessation']
@@ -68,7 +79,7 @@ class UIEventsMixin:
             nonsmoker.value = False
             nonsmoker.update()
 
-    def on_row_selected(self, e):
+    def on_row_selected(self, e: Any) -> None:
         """行選択時のハンドラ"""
         history = self.fields['history']
 
@@ -76,11 +87,12 @@ class UIEventsMixin:
             row_index = history.rows.index(e.control)
             self.selected_row = history.rows[row_index].data
             session = Session()
-            patient_info = session.query(PatientInfo).filter(
-                PatientInfo.id == self.selected_row['id']).first()
+            if self.selected_row is not None:
+                patient_info = session.query(PatientInfo).filter(
+                    PatientInfo.id == self.selected_row['id']).first()
 
-            if patient_info:
-                self._populate_form_from_patient_info(patient_info, session)
+                if patient_info:
+                    self._populate_form_from_patient_info(patient_info, session)
 
             session.close()
             self.page.update()

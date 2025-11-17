@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from database import get_session_factory
 from models import MainDisease
@@ -12,7 +13,11 @@ Session = get_session_factory()
 class FormOperationsMixin:
     """フォーム操作を提供するMixin"""
 
-    def _populate_form_from_patient_info(self, patient_info, session):
+    page: Any
+    fields: dict[str, Any]
+    df_patients: Any
+
+    def _populate_form_from_patient_info(self, patient_info: Any, session: Any) -> None:
         """患者情報から登録フォームを設定"""
         fields = self.fields
 
@@ -59,7 +64,7 @@ class FormOperationsMixin:
         fields['dental'].value = patient_info.dental
         fields['cancer_screening'].value = patient_info.cancer_screening
 
-    def _update_patient_info_from_form(self, patient_info, include_basic_info=False):
+    def _update_patient_info_from_form(self, patient_info: Any, include_basic_info: bool = False) -> None:
         """登録フォームから患者情報を更新"""
         fields = self.fields
 
@@ -104,7 +109,7 @@ class FormOperationsMixin:
         patient_info.dental = fields['dental'].value
         patient_info.cancer_screening = fields['cancer_screening'].value
 
-    def load_patient_info(self, patient_id_arg):
+    def load_patient_info(self, patient_id_arg: int) -> None:
         """患者情報を読み込む"""
         fields = self.fields
         patient_info = self.df_patients[self.df_patients.iloc[:, 2] == patient_id_arg]

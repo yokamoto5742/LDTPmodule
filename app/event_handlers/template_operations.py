@@ -1,3 +1,5 @@
+from typing import Any
+
 from database import get_session_factory
 from models import Template
 
@@ -7,7 +9,11 @@ Session = get_session_factory()
 class TemplateOperationsMixin:
     """テンプレート操作を提供するMixin"""
 
-    def apply_template(self, e):
+    page: Any
+    fields: dict[str, Any]
+    dialog_manager: Any
+
+    def apply_template(self, e: Any) -> None:
         """テンプレート適用ハンドラ"""
         fields = self.fields
         main_diagnosis = fields['main_diagnosis']
@@ -29,7 +35,7 @@ class TemplateOperationsMixin:
 
             session.close()
 
-    def _apply_template_to_fields(self, template):
+    def _apply_template_to_fields(self, template: Any) -> None:
         """テンプレートをフィールドに適用"""
         fields = self.fields
 
@@ -49,7 +55,7 @@ class TemplateOperationsMixin:
         fields['other1'].value = template.other1
         fields['other2'].value = template.other2
 
-    def save_template(self, e):
+    def save_template(self, e: Any) -> None:
         """テンプレート保存ハンドラ"""
         fields = self.fields
         main_diagnosis = fields['main_diagnosis']
@@ -78,7 +84,7 @@ class TemplateOperationsMixin:
 
         self.dialog_manager.show_info_message("テンプレートが保存されました")
 
-    def _update_template_from_fields(self, template):
+    def _update_template_from_fields(self, template: Any) -> None:
         """フィールドからテンプレートを更新"""
         fields = self.fields
 
