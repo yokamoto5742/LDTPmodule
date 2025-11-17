@@ -23,8 +23,25 @@ class TreatmentPlanOperationsMixin:
         department_id = fields['department_id_value'].value
         department = fields['department_value'].value
 
-        self.create_treatment_plan(int(p_id), int(doctor_id), doctor_name,
-                                  department, int(department_id), self.df_patients)
+        try:
+            patient_info = self.create_treatment_plan_object(
+                int(p_id), int(doctor_id), doctor_name, department, int(department_id), self.df_patients)
+            
+            # データベースに保存
+            session = Session()
+            session.add(patient_info)
+            session.commit()
+            
+            # 計画書を生成（セッションを閉じる前に実行）
+            TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
+            
+            # セッションを閉じる
+            session.close()
+            
+            self.update_history(int(p_id))
+            self.dialog_manager.show_info_message("データを保存して計画書を作成しました")
+        except ValueError as ve:
+            self.dialog_manager.show_error_message(str(ve))
 
         if self.route_manager:
             self.route_manager.open_route(e)
