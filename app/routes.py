@@ -200,6 +200,40 @@ class RouteManager:
 
     def open_create(self, e):
         """新規作成画面を開く"""
+        fields = self.fields
+        issue_date_picker = self.ui_elements.get('issue_date_picker')
+
+        # 選択された行をリセット
+        self.event_handlers.selected_row = None
+
+        # フィールドをクリア
+        clear_fields = [
+            'target_weight', 'target_bp', 'target_hba1c', 'goal1', 'goal2',
+            'target_achievement', 'diet1', 'diet2', 'diet3', 'diet4',
+            'diet_comment', 'exercise_prescription', 'exercise_time',
+            'exercise_frequency', 'exercise_intensity', 'daily_activity',
+            'exercise_comment', 'other1', 'other2'
+        ]
+
+        for field_name in clear_fields:
+            if field_name in fields:
+                fields[field_name].value = ""
+
+        fields['main_diagnosis'].value = ""
+        fields['sheet_name_dropdown'].value = ""
+        fields['creation_count'].value = "1"
+        fields['nonsmoker'].value = False
+        fields['smoking_cessation'].value = False
+        fields['ophthalmology'].value = False
+        fields['dental'].value = False
+        fields['cancer_screening'].value = False
+
+        # 発行日を現在の日付で初期化
+        current_date = datetime.now().date()
+        fields['issue_date_value'].value = current_date.strftime("%Y/%m/%d")
+        if issue_date_picker:
+            issue_date_picker.value = current_date
+
         self.page.go("/create")
 
     def open_edit(self, e):
