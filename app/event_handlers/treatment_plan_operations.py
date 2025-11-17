@@ -12,7 +12,7 @@ class TreatmentPlanOperationsMixin:
     """計画書操作を提供するMixin"""
 
     def create_new_plan(self, e):
-        """新規作成ハンドラ"""
+        """新規登録して印刷ハンドラ"""
         if not self.dialog_manager.check_required_fields():
             return
 
@@ -26,8 +26,11 @@ class TreatmentPlanOperationsMixin:
         self.create_treatment_plan(int(p_id), int(doctor_id), doctor_name,
                                   department, int(department_id), self.df_patients)
 
+        if self.route_manager:
+            self.route_manager.open_route(e)
+
     def save_new_plan(self, e):
-        """新規保存ハンドラ"""
+        """新規登録ハンドラ"""
         if not self.dialog_manager.check_required_fields():
             return
 
@@ -111,9 +114,6 @@ class TreatmentPlanOperationsMixin:
         try:
             patient_info = self.create_treatment_plan_object(
                 p_id, doctor_id, doctor_name, department, department_id, patients_df)
-
-            # エクセルファイルを生成
-            TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
 
             # データベースに保存
             session = Session()
