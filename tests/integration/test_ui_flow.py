@@ -478,6 +478,7 @@ class TestUIFlowIntegration:
         # 全コンポーネントの初期化
         dialog_manager = DialogManager(mock_page, sample_fields)
         event_handlers = EventHandlers(mock_page, sample_fields, sample_df_patients, dialog_manager)
+        event_handlers.update_history = Mock()
         route_manager = RouteManager(
             mock_page, sample_fields, ui_elements, event_handlers, "manual.pdf"
         )
