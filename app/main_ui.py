@@ -77,6 +77,8 @@ def create_ui(page: ft.Page):
         label="主病名",
         options=main_disease_options,
         width=200,
+        height=input_height,
+        text_size=font_size,
         border_color=ft.colors.BLUE,
         border_width=2,
     )
@@ -86,6 +88,8 @@ def create_ui(page: ft.Page):
         label="シート名",
         options=sheet_name_options,
         width=300,
+        height=input_height,
+        text_size=font_size,
         border_color=ft.colors.BLUE,
         border_width=2,
     )
