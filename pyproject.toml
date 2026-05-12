@@ -9,11 +9,13 @@ dependencies = [
     "sqlalchemy==2.0.39",  # ORM/データベース操作
     "mysqlclient==2.2.7",  # MySQL接続ドライバ
     "pandas==2.0.3",       # データ解析
+    "numpy==1.24.4",
     "openpyxl==3.1.5",     # Excelファイル操作
     "pydantic==2.10.6",    # データバリデーション
     "python-dotenv==1.0.1",# 環境変数管理
     "requests==2.32.3",    # HTTPクライアント
     "qrcode==7.4.2",       # QRコード生成
+    "pywin32==310",
     "python-barcode>=0.15.1" # バーコード生成
 ]
 
