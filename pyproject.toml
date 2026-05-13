@@ -3,20 +3,30 @@ name = "ldtpmodule"
 version = "1.0.0"
 requires-python = ">=3.11"
 dependencies = [
-    "flet==0.23.0",        # UIフレームワーク
-    "fastapi==0.115.11",   # Web APIフレームワーク
-    "uvicorn==0.34.0",     # ASGIサーバー
+    # --- 基盤・環境設定 ---
+    "python-dotenv==1.0.1",# 環境変数管理
+    "pydantic==2.10.6",    # データバリデーション
+
+    # --- データベース・データ操作 ---
     "sqlalchemy==2.0.39",  # ORM/データベース操作
     "mysqlclient==2.2.7",  # MySQL接続ドライバ
+    "numpy==1.24.4",       # 数値計算ライブラリ
     "pandas==2.0.3",       # データ解析
-    "numpy==1.24.4",
-    "openpyxl==3.1.5",     # Excelファイル操作
-    "pydantic==2.10.6",    # データバリデーション
-    "python-dotenv==1.0.1",# 環境変数管理
+
+    # --- 通信・サーバー ---
     "requests==2.32.3",    # HTTPクライアント
+    "fastapi==0.115.11",   # Web APIフレームワーク
+    "uvicorn==0.34.0",     # ASGIサーバー
+
+    # --- ファイル操作・特定機能 ---
+    "openpyxl==3.1.5",     # Excelファイル操作
+    "pillow==11.1.0",      # 画像処理
     "qrcode==7.4.2",       # QRコード生成
-    "pywin32==310",
-    "python-barcode>=0.15.1" # バーコード生成
+    "python-barcode>=0.15.1", # バーコード生成
+    "pywin32==310",        # Windowsシステム操作
+
+    # --- ユーザーインターフェース ---
+    "flet==0.23.0"         # UIフレームワーク
 ]
 
 [dependency-groups]
