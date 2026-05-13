@@ -1,4 +1,5 @@
-from datetime import date, datetime
+from datetime import date
+from typing import cast
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
@@ -224,10 +225,19 @@ class TestEventHandlers:
             1001, 101, '山田医師', '内科', 10, sample_df_patients
         )
 
-        assert patient_info.patient_id == 1001
-        assert patient_info.patient_name == '田中太郎'
-        assert patient_info.doctor_name == '山田医師'
-        assert patient_info.main_diagnosis == '糖尿病'
+        assert hasattr(patient_info, 'patient_id')
+        # Type casting to prevent SQLAlchemy ColumnElement type checking issues
+        patient_id: int = cast(int, patient_info.patient_id)
+        assert patient_id == 1001
+        assert hasattr(patient_info, 'patient_name')
+        patient_name: str = cast(str, patient_info.patient_name)
+        assert patient_name == '田中太郎'
+        assert hasattr(patient_info, 'doctor_name')
+        doctor_name: str = cast(str, patient_info.doctor_name)
+        assert doctor_name == '山田医師'
+        assert hasattr(patient_info, 'main_diagnosis')
+        main_diagnosis: str = cast(str, patient_info.main_diagnosis)
+        assert main_diagnosis == '糖尿病'
 
     @patch('app.event_handlers.treatment_plan_operations.Session')
     def test_create_treatment_plan_object_patient_not_found(
@@ -418,7 +428,7 @@ class TestUIFlowIntegration:
     def test_dialog_and_event_handler_integration(self, mock_page, sample_fields, sample_df_patients):
         """DialogManagerとEventHandlersの連携テスト"""
         dialog_manager = DialogManager(mock_page, sample_fields)
-        event_handlers = EventHandlers(mock_page, sample_fields, sample_df_patients, dialog_manager)
+        _ = EventHandlers(mock_page, sample_fields, sample_df_patients, dialog_manager)
 
         # DialogManagerを経由してエラーメッセージを表示
         dialog_manager.show_error_message("統合テストエラー")

@@ -1,6 +1,6 @@
 import os
 from datetime import date
-from unittest.mock import MagicMock, Mock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 

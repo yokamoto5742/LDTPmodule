@@ -2,7 +2,7 @@ import configparser
 import os
 import sys
 import tempfile
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import patch
 
 import pytest
 

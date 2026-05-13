@@ -1,6 +1,6 @@
 from datetime import date
 
-from models import MainDisease, PatientInfo, SheetName, Template
+from models import MainDisease, PatientInfo, SheetName
 
 
 class TestDatabaseCRUDOperations:

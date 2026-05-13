@@ -1,7 +1,5 @@
-import os
 from unittest.mock import MagicMock, Mock, patch
 
-import pytest
 from watchdog.events import FileSystemEvent
 from watchdog.observers import Observer
 

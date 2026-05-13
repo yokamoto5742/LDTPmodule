@@ -1,8 +1,8 @@
 import csv
 import os
 import tempfile
-from datetime import date, datetime
-from unittest.mock import MagicMock, Mock, mock_open, patch
+from datetime import date
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
@@ -79,6 +79,7 @@ class TestExportToCsv:
         assert csv_filename is not None
         assert csv_filename.startswith("patient_info_export_")
         assert csv_filename.endswith(".csv")
+        assert csv_path is not None
         assert csv_path == os.path.join(temp_export_dir, csv_filename)
         assert os.path.exists(csv_path)
         mock_session.close.assert_called_once()
@@ -102,11 +103,12 @@ class TestExportToCsv:
             mock_session.query.return_value.all.return_value = mock_patient_data
 
             # テスト実行
-            csv_filename, csv_path, error = export_to_csv(non_existent_dir)
+            _, csv_path, error = export_to_csv(non_existent_dir)
 
             # 検証
             assert error is None
             assert os.path.exists(non_existent_dir)
+            assert csv_path is not None
             assert os.path.exists(csv_path)
             mock_session.close.assert_called_once()
 
@@ -119,10 +121,11 @@ class TestExportToCsv:
         mock_session.query.return_value.all.return_value = []
 
         # テスト実行
-        csv_filename, csv_path, error = export_to_csv(temp_export_dir)
+        _, csv_path, error = export_to_csv(temp_export_dir)
 
         # 検証
         assert error is None
+        assert csv_path is not None
         assert os.path.exists(csv_path)
         mock_session.close.assert_called_once()
 
@@ -134,7 +137,7 @@ class TestExportToCsv:
 
     @patch('services.data_export_service.Session')
     @patch('services.data_export_service.open', side_effect=PermissionError("Permission denied"))
-    def test_export_to_csv_permission_error(self, mock_open, mock_session_class, temp_export_dir, mock_patient_data):
+    def test_export_to_csv_permission_error(self, mock_open_func, mock_session_class, temp_export_dir, mock_patient_data):
         """異常系: ファイル書き込み権限エラー"""
         # モックセッションの設定
         mock_session = MagicMock()
@@ -153,7 +156,7 @@ class TestExportToCsv:
 
     @patch('services.data_export_service.Session')
     @patch('services.data_export_service.open', side_effect=IOError("I/O error"))
-    def test_export_to_csv_io_error(self, mock_open, mock_session_class, temp_export_dir, mock_patient_data):
+    def test_export_to_csv_io_error(self, mock_open_func, mock_session_class, temp_export_dir, mock_patient_data):
         """異常系: ファイルI/Oエラー"""
         # モックセッションの設定
         mock_session = MagicMock()
@@ -197,10 +200,11 @@ class TestExportToCsv:
         mock_session.query.return_value.all.return_value = mock_patient_data
 
         # テスト実行
-        csv_filename, csv_path, error = export_to_csv(temp_export_dir)
+        csv_filename, _, error = export_to_csv(temp_export_dir)
 
         # 検証
         assert error is None
+        assert csv_filename is not None
         # ファイル名が "patient_info_export_YYYYMMDD_HHMMSS.csv" の形式であることを確認
         import re
         pattern = r'^patient_info_export_\d{8}_\d{6}\.csv$'

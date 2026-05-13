@@ -1,9 +1,4 @@
-from contextlib import contextmanager
 from unittest.mock import MagicMock, patch
-
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
 
 from database import connection
 
@@ -162,7 +157,7 @@ class TestGetSession:
             mock_session = MagicMock()
             mock_factory.return_value = MagicMock(return_value=mock_session)
 
-            with connection.get_session() as session:
+            with connection.get_session() as _:
                 pass
 
             # セッションがクローズされたことを確認
@@ -175,7 +170,7 @@ class TestGetSession:
             mock_factory.return_value = MagicMock(return_value=mock_session)
 
             try:
-                with connection.get_session() as session:
+                with connection.get_session() as _:
                     raise ValueError("Test exception")
             except ValueError:
                 pass
@@ -222,13 +217,13 @@ class TestGetSession:
             mock_factory.return_value = MagicMock(return_value=mock_session)
 
             # 正常終了時
-            with connection.get_session() as session:
+            with connection.get_session() as _:
                 pass
             assert mock_session.close.call_count == 1
 
             # 例外発生時
             try:
-                with connection.get_session() as session:
+                with connection.get_session() as _:
                     raise RuntimeError("Test error")
             except RuntimeError:
                 pass
