@@ -1,41 +1,33 @@
-# 生活習慣病療養計画書作成アプリ
+# 生活習慣病療養計画書作成アプリ（LDTPapp）
 
-生活習慣病患者の療養計画書を効率的に作成・管理するWindows専用デスクトップアプリケーションです。患者情報をSQLiteデータベースで管理し、Excelテンプレートベースで自動生成します。
+生活習慣病（高血圧症・脂質異常症・糖尿病）の**療養計画書を、外来の流れを止めずに作成・再発行する**Windowsデスクトップアプリです。患者ごとの計画内容をSQLiteに記録し、Excelテンプレート（xlsm）へ自動で流し込んで、バーコード付き文書を生成します。
 
-## 主要機能
+## 解決したい課題
 
-- **患者情報管理**: 患者データをSQLiteに記録・更新
-- **療養計画書自動生成**: Excelテンプレートをベースに自動入力
-- **バーコード付き文書**: 生成した療養計画書にバーコードを自動挿入
-- **ファイル監視**: pat.csv（患者データソース）の変更を自動監視
-- **テンプレートカスタマイズ**: 疾病別・目標別の療養計画テンプレート管理
-- **データエクスポート**: 患者情報のCSVエクスポート機能
+導入前、療養計画書は**素のExcelテンプレートに毎回手入力**して作成していました。
 
-## 技術スタック
+- ファイルに患者ごとのデータが残らない → **毎回ゼロから作り直し**
+- 計画内容は患者ごとにほぼ同じ → **同じ入力作業の繰り返しで時間が溶ける**
+- 忙しい外来の中で、この重複作業が地味に診療を圧迫する
 
-**コア技術**
-- **Python 3.11**: プログラミング言語
-- **Flet 0.23.0**: UIフレームワーク
-- **SQLAlchemy 2.0.39**: ORM（データベース操作）
-- **SQLite**: ローカルデータベース
+このアプリは「**一度入力した計画は患者に紐づけて保存し、次回は呼び出して微修正するだけ**」という状態を作ることで、この繰り返しを消すのが目的です。
 
-**Excel文書生成**
-- **openpyxl 3.1.5**: Excelファイル操作（マクロ保持対応）
-- **python-barcode 0.15.1**: バーコード画像生成
-- **pypng 0.20220715.0**: PNG画像処理
+## 特徴
 
-**データ処理・連携**
-- **pandas 2.0.3**: CSV等のデータ処理
-- **watchdog 4.0.2**: ファイルシステム監視
+- **患者ごとの計画を永続化** — 作成した計画書の内容をSQLiteに保存。次回受診時は患者IDで呼び出し、変わった項目だけ直して再発行できる。
+- **疾病別テンプレート** — 主病名・目標数値別にデフォルト値をDB管理。「ほぼ同じ内容」を初期値として持たせ、入力を最小化する。
+- **Excel(xlsm)テンプレートをそのまま活用** — ネット上で配布されている療養計画書のExcelテンプレートを流用可能。印刷・電子カルテへのPDF保存といった後処理はExcelマクロ側にボタンで足せる（[設計ノート参照](#1-pdf直接生成ではなくexcelxlsmを採用した理由)）。
+- **バーコードを画像として焼き込み** — Excelアドイン型のバーコードに依存しない。アドインはExcelの更新で表示できなくなるリスクがあるため、`python-barcode`で生成した画像をセルに配置する（[設計ノート参照](#3-バーコードはアドインではなく画像として配置)）。
+- **サーバーレスなSQLite** — DBは実体がファイル1つ。院内ファイルサーバーに置けば、各電子カルテ端末から参照できる（[設計ノート参照](#2-postgresqlではなくsqliteを使い続ける理由)）。
+- **pat.csv の自動監視** — 電子カルテが出力する患者データCSVを watchdog で監視し、更新を自動でUIへ反映。
 
-## 前提条件
+## 動作環境
 
-**システム要件**
-- Windows10 64ビット以上
-- Python 3.11以上
-- メモリ: 4GB以上推奨
+- Windows 10 64bit 以上
+- Python 3.11 以上
+- メモリ 4GB 以上推奨
 
-## インストール
+## インストール方法
 
 1. リポジトリをクローン
    ```bash
@@ -54,291 +46,123 @@
    pip install -r requirements.txt
    ```
 
-4. 設定ファイルを確認・編集
-   ```bash
-   # utils/config.ini を環境に合わせて編集
-   # 特にテンプレートパス、出力パスを確認
-   ```
+4. `utils/config.ini` を自院の環境に合わせて編集（特にテンプレートパス・出力パス・pat.csvのパス。詳細は[設定](#設定configini)）
 
 5. アプリケーションを起動
    ```bash
    python main.py
    ```
+   起動時に pat.csv の存在を確認し、データベースを自動初期化します。
 
-## 使用方法
+## 使い方
 
 ### 基本的なワークフロー
 
-1. **アプリケーション起動**
-   ```bash
-   python main.py
-   ```
-   - pat.csvファイルの存在を自動確認（ない場合は終了）
-   - データベースを自動初期化
-
-2. **患者情報の選択**
-   - 患者IDを入力・検索
-   - 対象患者の情報が自動読み込み
-
-3. **療養計画書の作成**
-   - 主病名（高血圧症、脂質異常症、糖尿病など）を選択
-   - シート名（目標数値別）を選択
-   - 各項目を入力（目標値、食事・運動処方など）
-
-4. **ドキュメント生成**
-   - 「新規登録して印刷」ボタンで自動生成
+1. **起動** — `python main.py`
+2. **患者を選択** — 患者IDを入力・検索すると、対象患者の情報（前回の計画があれば含む）が自動読み込みされる
+3. **計画書を作成** — 主病名を選択 → シート名（目標数値別）を選択 → 目標値・食事/運動処方などを入力。テンプレートのデフォルト値が初期表示されるので、変更点だけ直す
+4. **文書を生成** — 「新規登録して印刷」で xlsm を生成
    - ファイル名: `{患者ID}{文書番号}{部門ID}{医師ID}{日付}{時刻}.xlsm`
    - 出力先: `C:\Shinseikai\LDTPapp\temp`
-   - バーコード自動挿入（B2セル）
+   - バーコードを B2 セルに自動挿入
 
 ### テンプレート編集
 
-1. 「テンプレート編集」ボタンをクリック
-2. 主病名とシート名を選択
-3. テンプレートのデフォルト値を編集
-4. 保存
+「テンプレート編集」→ 主病名とシート名を選択 → デフォルト値を編集 → 保存。
 
 ### データのエクスポート
 
-- 「設定」画面からCSVエクスポート機能でデータ出力
-- エクスポート先: `C:\Shinseikai\LDTPapp\export_data`
-
-## プロジェクト構造
-
-```
-LDTPmodule/
-├── main.py                     # アプリケーションエントリーポイント
-├── app/                        # UI・ダイアログ層
-│   ├── __init__.py            # バージョン情報（__version__, __date__）
-│   ├── main_ui.py             # メインUI構築
-│   ├── ui_builder.py          # UI要素生成ユーティリティ
-│   ├── dialogs.py             # ダイアログコンポーネント
-│   ├── routes.py              # ルーティング処理
-│   └── event_handlers/        # イベントハンドラー
-│
-├── models/                     # SQLAlchemyモデル
-│   ├── patient_info.py        # 患者情報テーブル
-│   ├── main_disease.py        # 主病名マスタ
-│   ├── sheet_name.py          # シート名マスタ
-│   └── template.py            # テンプレートデータ
-│
-├── database/                   # データベース層
-│   ├── connection.py          # DB接続設定
-│   └── initializer.py         # テーブル初期化・シードデータ
-│
-├── services/                   # ビジネスロジック層
-│   ├── treatment_plan_service.py  # Excel生成・バーコード処理
-│   ├── patient_service.py         # 患者情報操作
-│   ├── template_service.py        # テンプレート管理
-│   ├── file_monitor_service.py    # pat.csv監視（watchdog）
-│   └── data_export_service.py     # データエクスポート
-│
-├── utils/                      # ユーティリティ
-│   ├── config.ini             # 設定ファイル
-│   ├── config_manager.py      # 設定読み込みユーティリティ
-│   └── constants.py           # 定数定義
-│
-├── alembic/                    # データベースマイグレーション
-│
-├── tests/                      # テストスイート
-│
-├── assets/                     # リソース
-│   └── LDPTapp_icon.ico       # アプリケーションアイコン
-│
-└── docs/                       # ドキュメント
-    ├── README.md              # このファイル
-    └── CHANGELOG.md           # 変更履歴
-```
+「設定」画面のCSVエクスポートで患者情報を出力。出力先は `C:\Shinseikai\LDTPapp\export_data`。
 
 ## 設定（config.ini）
 
-`utils/config.ini` で以下をカスタマイズ可能:
+`utils/config.ini` で全パス・サイズ設定を一元管理します。
 
 ```ini
 [Database]
 db_url = sqlite:///ldtp_app.db
 
 [settings]
-window_width = 1200          # ウィンドウ幅
-window_height = 900          # ウィンドウ高さ
+window_width = 1200
+window_height = 900
 
 [Paths]
-template_path = C:\Shinseikai\LDTPapp\LDTPform.xlsm
-output_path = C:\Shinseikai\LDTPapp\temp
+template_path = C:\Shinseikai\LDTPapp\LDTPform.xlsm   # 計画書テンプレート(xlsm)
+output_path   = C:\Shinseikai\LDTPapp\temp            # 生成文書の出力先
 
 [FilePaths]
-patient_data = C:\InnoKarte\pat.csv
+patient_data  = C:\InnoKarte\pat.csv                  # 電子カルテが出力する患者CSV
 export_folder = C:\Shinseikai\LDTPapp\export_data
-manual_pdf = C:\Shinseikai\LDTPapp\LDTPapp_manual.pdf
+manual_pdf    = C:\Shinseikai\LDTPapp\LDTPapp_manual.pdf
 
 [Barcode]
-write_text = false           # バーコード下にテキスト表記
-module_height = 15           # バーコード高さ
-image_position = B2          # バーコード挿入位置
+write_text     = false   # バーコード下のテキスト表記
+module_height  = 15      # バーコード高さ
+image_position = B2      # バーコード挿入セル
 ```
 
-## データベーススキーマ
+## 設計ノート（なぜこの作りなのか）
 
-### PatientInfo テーブル
-患者の詳細情報（47フィールド）
+他施設で似たツールを作る人が、同じ判断で迷わないように残しています。
 
-**基本情報**
-- `patient_id`: 患者ID
-- `patient_name`: 患者名
-- `kana`: カナ表記
-- `gender`: 性別
-- `birthdate`: 生年月日
-- `issue_date`: 発行日
-- `issue_date_age`: 発行日時点の年齢
+### 1. PDF直接生成ではなくExcel(xlsm)を採用した理由
 
-**医療情報**
-- `main_diagnosis`: 主病名
-- `target_weight`: 目標体重
-- `target_bp`: 目標血圧
-- `target_hba1c`: 目標HbA1c
-- `cancer_screening`: 癌検診有無
+- 印刷や「電子カルテへPDF保存」といった**後処理を、Excelマクロにボタンとして簡単に追加できる**。PDFを直接吐く設計だと、この拡張が一気に難しくなる。
+- 療養計画書の**テンプレートがExcel形式でネット配布されており**、それをそのまま使うのが最短だった。
+- マクロは openpyxl の `keep_vba=True` で保持される。
 
-**処方情報**
-- `goal1`, `goal2`: 達成目標
-- `target_achievement`: 達成期限
-- `diet1-4`: 食事処方（複数項目）
-- `diet_comment`: 食事コメント
-- `exercise_prescription`: 運動処方
-- `exercise_time`: 運動時間
-- `exercise_frequency`: 運動頻度
-- `exercise_intensity`: 運動強度
-- `exercise_comment`: 運動コメント
-- `daily_activity`: 日常生活活動
-- `nonsmoker`: 喫煙者状態
-- `smoking_cessation`: 禁煙状態
+### 2. PostgreSQLではなくSQLiteを使い続ける理由
 
-### MainDisease テーブル
-主病名マスタ: 高血圧症、脂質異常症、糖尿病
+PostgreSQLはDBサーバーの構築・運用が必要になる。SQLiteは実体がファイル1つなので、**院内ファイルサーバーに置いて各電子カルテ端末から参照する**運用が、サーバーを立てずに実現できる。院内ツールの配布・保守コストを最小化する判断。
 
-### SheetName テーブル
-シート名マスタ: 疾病ごとの目標数値別シート定義
+### 3. バーコードはアドインではなく画像として配置
 
-### Template テーブル
-テンプレートデータ: 疾病・シート別のデフォルト値
+Excelアドイン型のバーコードツール（特に古いもの）は、**Excel本体の更新で新バージョンに対応できず、バーコードが表示されなくなる**ことがある。これを避けるため、`python-barcode`（Code128）で生成した画像を openpyxl でセルに貼り付ける方式にしている。Excelのバージョンに依存しないのが利点。
 
-## 開発ガイドライン
+## アーキテクチャ
 
-### 開発コマンド
+三層構造:
 
-**アプリケーション実行**
-```bash
-python main.py
+| 層 | ディレクトリ | 役割 |
+|----|-------------|------|
+| UI層 | `app/` | Flet コンポーネント・ルーティング・イベントハンドラ |
+| サービス層 | `services/` | Excel生成・患者操作・ファイル監視などのビジネスロジック |
+| データ層 | `database/` `models/` | SQLAlchemy ORM・接続管理 |
+
+計画書生成の流れ:
+
+```
+入力情報 → TreatmentPlanGenerator.generate_plan()
+  → テンプレート読み込み（openpyxl, keep_vba=True）
+  → populate_common_sheet() でセルへデータ入力
+  → バーコード生成（python-barcode）→ B2セルへ画像配置
+  → xlsm をtempへ出力 → DBに登録
 ```
 
-**実行ファイルビルド**
-```bash
-python build.py
-```
-- version_manager で自動バージョンアップ
-- PyInstaller で実行ファイル生成
-- config.ini を dist フォルダにコピー
-- ウィンドウモード有効、アイコン設定済み
+詳細なディレクトリ構成・開発手順は [CLAUDE.md](./CLAUDE.md) を参照してください。
 
-**バージョン管理**
-```bash
-python scripts/version_manager.py
-```
-- app/__init__.py の __version__ を更新
-- 最終更新日付を __date__ に設定
-- docs/README.md のバージョン情報も更新
+## 拡張ポイント（フォークして使う方へ）
 
-**プロジェクト構造表示**
-```bash
-python scripts/project_structure.py
-```
-
-**データベースマイグレーション**
-```bash
-# 新規マイグレーション作成
-alembic revision --autogenerate -m "説明"
-
-# マイグレーション適用
-alembic upgrade head
-
-# マイグレーション元に戻す
-alembic downgrade -1
-```
-
-**テスト実行**
-```bash
-pytest tests/
-pytest tests/ -v              # 詳細表示
-pytest tests/ --cov           # カバレッジ表示
-```
-
-### アーキテクチャパターン
-
-**三層構造**
-- **UI層** (app/): Flet UIコンポーネント
-- **サービス層** (services/): ビジネスロジック
-- **データ層** (database/, models/): ORM・永続化
-
-**主要な処理フロー**
-
-1. **患者データ読み込み**
-   - pat.csv → watchdog 監視
-   - PatientInfo から患者レコード取得
-   - UI に表示
-
-2. **生活習慣病療養計画書生成**
-   ```
-   入力情報 → TreatmentPlanGenerator.generate_plan()
-   → テンプレート読み込み（openpyxl）
-   → populate_common_sheet() でデータ入力
-   → バーコード生成（python-barcode）
-   → ファイル出力（/temp）
-   → DBに登録
-   ```
-
-3. **ファイル監視**
-   - pat.csv を watchdog 監視
-   - 削除検出 → アプリ終了
-   - 更新検出 → UI更新
-
-### 新機能追加時の手順
-
-**データベーススキーマ追加**
-1. models/patient_info.py にカラム追加
-2. `alembic revision --autogenerate -m "カラム説明"`
-3. `alembic upgrade head` でマイグレーション実行
-4. services/ でビジネスロジック実装
-5. app/ で UI 追加
-
-**Excel テンプレート変更**
-1. `C:\Shinseikai\LDTPapp\LDTPform.xlsm` を編集
-2. TreatmentPlanGenerator.populate_common_sheet() の セル指定を更新
-3. 新しいマクロは openpyxl の keep_vba=True で保持
+| やりたいこと | 触る場所 |
+|-------------|---------|
+| 患者項目を増やす | `models/patient_info.py` にカラム追加 → `alembic revision --autogenerate` → `alembic upgrade head` → サービス層・UI層を更新 |
+| Excelの記入セルを変える | `C:\Shinseikai\LDTPapp\LDTPform.xlsm` を編集 → `TreatmentPlanGenerator.populate_common_sheet()` のセル指定を更新 |
+| 対応疾病・シートを増やす | `MainDisease` / `SheetName` / `Template` マスタにデータ追加 |
+| パス・サイズ設定 | `utils/config.ini`（コード内のマジック文字列は `utils/constants.py` で管理） |
 
 ## トラブルシューティング
 
-**「pat.csvが見つかりません」エラー**
-- 原因: pat.csv ファイルが削除されたか、パスが間違い
-- 解決: config.ini の FilePaths.patient_data を確認・修正
-
-**テンプレート読み込みエラー**
-- 原因: template_path の Excelファイルが開かれている、または破損している
-- 解決: Excelを閉じる、ファイル権限確認、テンプレートファイル再確認
-
-**バーコード生成失敗**
-- 原因: 患者IDやドキュメント番号が不正、または出力パスに書き込み権限がない
-- 解決: パスの権限確認、config.ini の Barcode 設定確認
-
-**データベース接続エラー**
-- 原因: ldtp_app.db ファイルが破損、ディスク容量不足
-- 解決: DB ファイル削除（再初期化）、ディスク容量確認
+| 症状 | 原因 | 対処 |
+|------|------|------|
+| 「pat.csvが見つかりません」で起動できない | pat.csv が削除された、またはパス誤り | `config.ini` の `FilePaths.patient_data` を確認・修正 |
+| テンプレート読み込みエラー | テンプレートのxlsmが他で開かれている／破損 | Excelを閉じる、ファイル権限とテンプレートを確認 |
+| バーコード生成失敗 | 患者ID・文書番号が不正、または出力先に書き込み権限なし | 出力パスの権限と `config.ini` の `[Barcode]` 設定を確認 |
+| データベース接続エラー | `ldtp_app.db` の破損、ディスク容量不足 | DBファイルを削除して再初期化、ディスク容量を確認 |
 
 ## ライセンス
 
-このプロジェクトのライセンス情報についてはLICENSEファイルを参照してください。
+このプロジェクトのライセンス情報については [LICENSE](./docs/LICENSE) を参照してください。
 
-## 参考資料
+## 更新履歴
 
-- [CHANGELOG.md](./CHANGELOG.md): バージョン変更履歴
-- [Flet ドキュメント](https://flet.dev): UI フレームワーク
-- [SQLAlchemy ドキュメント](https://docs.sqlalchemy.org): ORM ライブラリ
-- [openpyxl ドキュメント](https://openpyxl.readthedocs.io): Excel 操作
+更新履歴は [CHANGELOG.md](./docs/CHANGELOG.md) を参照してください。
