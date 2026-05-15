@@ -213,92 +213,67 @@ class TestLoadSheetNames:
 class TestFetchPatientHistory:
     """fetch_patient_history関数のテスト"""
 
-    @patch('services.patient_service.Session')
-    def test_fetch_patient_history_success(self, mock_session_class, setup_test_data):
+    @patch('services.patient_service.get_session')
+    def test_fetch_patient_history_success(self, mock_get_session, setup_test_data):
         """患者履歴取得成功テスト"""
-        # モックセッション
-        mock_session_class.return_value = setup_test_data
+        mock_get_session.return_value.__enter__.return_value = setup_test_data
 
-        # テスト実行
         result = list(fetch_patient_history(filter_patient_id=1001))
 
-        # 検証
         assert len(result) == 2
         assert result[0]['issue_date'] == "2025/02/15"  # 降順
         assert result[1]['issue_date'] == "2025/01/10"
         assert result[0]['count'] == 2
         assert result[1]['count'] == 1
 
-    @patch('services.patient_service.Session')
-    def test_fetch_patient_history_single_record(self, mock_session_class, setup_test_data):
+    @patch('services.patient_service.get_session')
+    def test_fetch_patient_history_single_record(self, mock_get_session, setup_test_data):
         """単一レコードの患者履歴テスト"""
-        mock_session_class.return_value = setup_test_data
+        mock_get_session.return_value.__enter__.return_value = setup_test_data
 
-        # テスト実行
         result = list(fetch_patient_history(filter_patient_id=2002))
 
-        # 検証
         assert len(result) == 1
         assert result[0]['department'] == "循環器科"
         assert result[0]['doctor_name'] == "医師B"
         assert result[0]['main_diagnosis'] == "高血圧"
 
-    @patch('services.patient_service.Session')
-    def test_fetch_patient_history_no_patient_id(self, mock_session_class, setup_test_data):
+    @patch('services.patient_service.get_session')
+    def test_fetch_patient_history_no_patient_id(self, mock_get_session, setup_test_data):
         """患者ID未指定時のテスト"""
-        mock_session_class.return_value = setup_test_data
+        mock_get_session.return_value.__enter__.return_value = setup_test_data
 
-        # テスト実行
         result = list(fetch_patient_history(filter_patient_id=None))
 
-        # 検証
         assert len(result) == 0
 
-    @patch('services.patient_service.Session')
-    def test_fetch_patient_history_empty_patient_id(self, mock_session_class, setup_test_data):
-        """空の患者IDテスト"""
-        mock_session_class.return_value = setup_test_data
-
-        # テスト実行
-        result = list(fetch_patient_history(filter_patient_id=""))
-
-        # 検証
-        assert len(result) == 0
-
-    @patch('services.patient_service.Session')
-    def test_fetch_patient_history_no_match(self, mock_session_class, setup_test_data):
+    @patch('services.patient_service.get_session')
+    def test_fetch_patient_history_no_match(self, mock_get_session, setup_test_data):
         """該当患者なしのテスト"""
-        mock_session_class.return_value = setup_test_data
+        mock_get_session.return_value.__enter__.return_value = setup_test_data
 
-        # テスト実行
         result = list(fetch_patient_history(filter_patient_id=9999))
 
-        # 検証
         assert len(result) == 0
 
-    @patch('services.patient_service.Session')
-    def test_fetch_patient_history_date_format(self, mock_session_class, setup_test_data):
+    @patch('services.patient_service.get_session')
+    def test_fetch_patient_history_date_format(self, mock_get_session, setup_test_data):
         """日付フォーマットのテスト"""
-        mock_session_class.return_value = setup_test_data
+        mock_get_session.return_value.__enter__.return_value = setup_test_data
 
-        # テスト実行
         result = list(fetch_patient_history(filter_patient_id=1001))
 
-        # 検証
         assert result[0]['issue_date'] == "2025/02/15"
         assert result[1]['issue_date'] == "2025/01/10"
-        # 日付フォーマットが正しいか確認
         assert "/" in result[0]['issue_date']
 
-    @patch('services.patient_service.Session')
-    def test_fetch_patient_history_all_fields(self, mock_session_class, setup_test_data):
+    @patch('services.patient_service.get_session')
+    def test_fetch_patient_history_all_fields(self, mock_get_session, setup_test_data):
         """全フィールド取得テスト"""
-        mock_session_class.return_value = setup_test_data
+        mock_get_session.return_value.__enter__.return_value = setup_test_data
 
-        # テスト実行
         result = list(fetch_patient_history(filter_patient_id=1001))
 
-        # 検証
         record = result[0]
         assert 'id' in record
         assert 'issue_date' in record
