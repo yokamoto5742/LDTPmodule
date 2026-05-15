@@ -15,8 +15,7 @@ from utils import config_manager
 
 config = config_manager.load_config()
 barcode_config = config['Barcode']
-
-DOCUMENT_NUMBER = "39221"
+DOCUMENT_NUMBER = config['Document']['document_number']
 
 # 共通情報シートのセルとPatientInfo属性の対応
 COMMON_SHEET_CELL_MAP: list[tuple[str, str]] = [
@@ -63,7 +62,7 @@ COMMON_SHEET_CELL_MAP: list[tuple[str, str]] = [
 
 class TreatmentPlanGenerator:
     @staticmethod
-    def generate_plan(patient_info, file_name):  # noqa: ARG004  # シグネチャ維持のため保持
+    def generate_plan(patient_info, file_name):
         del file_name
         template_path = config.get("Paths", "template_path")
         output_path = config.get("Paths", "output_path")
