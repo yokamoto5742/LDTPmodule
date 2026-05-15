@@ -2,102 +2,70 @@ import csv
 import os
 import re
 from datetime import datetime
+from typing import Any, Optional, Tuple
 
-from database import get_session_factory
+from sqlalchemy import Boolean, Date, Float, Integer
+
+from database import get_session
 from models import PatientInfo
 
-Session = get_session_factory()
+
+def _convert_value(column, raw: str) -> Any:
+    """CSV文字列をカラム型に応じてPython値に変換"""
+    if raw == '' or raw is None:
+        # Boolean は空文字を False ではなく None として扱う
+        return None
+
+    column_type = column.type
+    if isinstance(column_type, Boolean):
+        return raw == 'True'
+    if isinstance(column_type, Date):
+        return datetime.strptime(raw, '%Y-%m-%d').date()
+    if isinstance(column_type, Integer):
+        return int(raw)
+    if isinstance(column_type, Float):
+        return float(raw)
+    return raw
 
 
-def export_to_csv(export_folder):
+def export_to_csv(export_folder: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """CSV出力"""
-    # 現在の日時でCSVファイル名を生成
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     csv_filename = f"patient_info_export_{timestamp}.csv"
     csv_path = os.path.join(export_folder, csv_filename)
-
-    # エクスポートフォルダが存在しない場合は作成
     os.makedirs(export_folder, exist_ok=True)
 
-    # セッションを開始
-    session = Session()
-
     try:
-        # PatientInfoテーブルからすべてのデータを取得
-        patient_data = session.query(PatientInfo).all()
+        with get_session() as session:
+            patient_data = session.query(PatientInfo).all()
+            columns = PatientInfo.__table__.columns
 
-        # CSVファイルを書き込みモードで開く
-        with open(csv_path, 'w', newline='', encoding='shift_jis', errors='ignore') as csvfile:
-            writer = csv.writer(csvfile)
-
-            # ヘッダー行を書き込む
-            writer.writerow([column.name for column in PatientInfo.__table__.columns])
-
-            # データ行を書き込む
-            for patient in patient_data:
-                writer.writerow([getattr(patient, column.name) for column in PatientInfo.__table__.columns])
+            with open(csv_path, 'w', newline='', encoding='shift_jis', errors='ignore') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow([column.name for column in columns])
+                for patient in patient_data:
+                    writer.writerow([getattr(patient, column.name) for column in columns])
 
         return csv_filename, csv_path, None
     except Exception as e:
         return None, None, str(e)
-    finally:
-        session.close()
 
 
-def import_from_csv(file_path):
+def import_from_csv(file_path: str) -> Optional[str]:
     """CSV取込"""
     file_name = os.path.basename(file_path)
     if not re.match(r'^patient_info_.*\.csv$', file_name):
         return "インポートエラー:このファイルはインポートできません"
 
     try:
+        columns = [c for c in PatientInfo.__table__.columns if c.name != 'id']
         with open(file_path, encoding='shift_jis') as csvfile:
             csv_reader = csv.DictReader(csvfile)
-            session = Session()
-            for row in csv_reader:
-                patient_info = PatientInfo(
-                    patient_id=int(row['patient_id']),
-                    patient_name=row['patient_name'],
-                    kana=row['kana'],
-                    gender=row['gender'],
-                    birthdate=datetime.strptime(row['birthdate'], '%Y-%m-%d').date(),
-                    issue_date=datetime.strptime(row['issue_date'], '%Y-%m-%d').date(),
-                    issue_date_age=int(row['issue_date_age']),
-                    doctor_id=int(row['doctor_id']),
-                    doctor_name=row['doctor_name'],
-                    department=row['department'],
-                    department_id=int(row['department_id']),
-                    main_diagnosis=row['main_diagnosis'],
-                    sheet_name=row['sheet_name'],
-                    creation_count=int(row['creation_count']),
-                    target_weight=float(row['target_weight']) if row['target_weight'] else None,
-                    target_bp=row['target_bp'],
-                    target_hba1c=row['target_hba1c'],
-                    goal1=row['goal1'],
-                    goal2=row['goal2'],
-                    target_achievement=row['target_achievement'],
-                    diet1=row['diet1'],
-                    diet2=row['diet2'],
-                    diet3=row['diet3'],
-                    diet4=row['diet4'],
-                    diet_comment=row['diet_comment'],
-                    exercise_prescription=row['exercise_prescription'],
-                    exercise_time=row['exercise_time'],
-                    exercise_frequency=row['exercise_frequency'],
-                    exercise_intensity=row['exercise_intensity'],
-                    daily_activity=row['daily_activity'],
-                    exercise_comment=row['exercise_comment'],
-                    nonsmoker=row['nonsmoker'] == 'True',
-                    smoking_cessation=row['smoking_cessation'] == 'True',
-                    other1=row['other1'],
-                    other2=row['other2'],
-                    ophthalmology=row['ophthalmology'] == 'True',
-                    dental=row['dental'] == 'True',
-                    cancer_screening=row['cancer_screening'] == 'True'
-                )
-                session.add(patient_info)
-            session.commit()
-            session.close()
-            return None
+            with get_session() as session:
+                for row in csv_reader:
+                    values = {col.name: _convert_value(col, row.get(col.name, '')) for col in columns}
+                    session.add(PatientInfo(**values))
+                session.commit()
+        return None
     except Exception as e:
         return f"インポート中にエラーが発生しました: {str(e)}"

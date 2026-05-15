@@ -6,12 +6,10 @@ from .patient_service import (
     load_patient_data,
     load_sheet_names,
 )
-from .template_service import TemplateManager
 from .treatment_plan_service import TreatmentPlanGenerator
 
 __all__ = [
     'TreatmentPlanGenerator',
-    'TemplateManager',
     'load_patient_data',
     'load_main_diseases',
     'load_sheet_names',

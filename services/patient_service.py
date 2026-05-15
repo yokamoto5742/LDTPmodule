@@ -1,13 +1,12 @@
 import configparser
+from typing import Optional
 
 import flet as ft
 import pandas as pd
 
-from database import get_session, get_session_factory
+from database import get_session
 from models import MainDisease, PatientInfo, SheetName
 from utils import config_manager
-
-Session = get_session_factory()
 
 
 def load_patient_data():
@@ -45,25 +44,33 @@ def load_sheet_names(main_disease=None):
         return [ft.dropdown.Option(str(sheet.name)) for sheet in sheet_names]
 
 
-def fetch_patient_history(filter_patient_id=None):
+def fetch_patient_history(filter_patient_id: Optional[int] = None) -> list[dict]:
     """患者履歴取得"""
     if not filter_patient_id:
         return []
 
-    session_fetch_data = Session()
-    query = session_fetch_data.query(PatientInfo.id, PatientInfo.issue_date, PatientInfo.department,
-                                     PatientInfo.doctor_name, PatientInfo.main_diagnosis,
-                                     PatientInfo.sheet_name, PatientInfo.creation_count). \
-        order_by(PatientInfo.patient_id.asc(), PatientInfo.id.desc())
+    with get_session() as session:
+        records = session.query(
+            PatientInfo.id,
+            PatientInfo.issue_date,
+            PatientInfo.department,
+            PatientInfo.doctor_name,
+            PatientInfo.main_diagnosis,
+            PatientInfo.sheet_name,
+            PatientInfo.creation_count,
+        ).filter(PatientInfo.patient_id == filter_patient_id) \
+         .order_by(PatientInfo.patient_id.asc(), PatientInfo.id.desc()) \
+         .all()
 
-    query = query.filter(PatientInfo.patient_id == filter_patient_id)
-
-    return ({
-        "id": str(info.id),
-        "issue_date": info.issue_date.strftime("%Y/%m/%d") if info.issue_date else "",
-        "department": info.department,
-        "doctor_name": info.doctor_name,
-        "main_diagnosis": info.main_diagnosis,
-        "sheet_name": info.sheet_name,
-        "count": info.creation_count
-    } for info in query)
+        return [
+            {
+                "id": str(info.id),
+                "issue_date": info.issue_date.strftime("%Y/%m/%d") if info.issue_date else "",
+                "department": info.department,
+                "doctor_name": info.doctor_name,
+                "main_diagnosis": info.main_diagnosis,
+                "sheet_name": info.sheet_name,
+                "count": info.creation_count,
+            }
+            for info in records
+        ]
