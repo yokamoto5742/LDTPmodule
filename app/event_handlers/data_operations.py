@@ -4,7 +4,7 @@ from typing import Any
 from database import get_session_factory
 from models import PatientInfo
 from services.patient_service import load_patient_data
-from services.treatment_plan_service import TreatmentPlanGenerator
+from services.treatment_plan_service import generate_plan
 from utils.date_utils import calculate_issue_date_age
 
 Session = get_session_factory()
@@ -153,6 +153,6 @@ class DataOperationsMixin:
             if patient_info:
                 self._update_patient_info_from_form(patient_info)
                 session.commit()
-                TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
+                generate_plan(patient_info, "LDTPform")
 
         session.close()

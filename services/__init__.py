@@ -6,10 +6,11 @@ from .patient_service import (
     load_patient_data,
     load_sheet_names,
 )
-from .treatment_plan_service import TreatmentPlanGenerator
+from .treatment_plan_service import generate_plan, populate_common_sheet
 
 __all__ = [
-    'TreatmentPlanGenerator',
+    'generate_plan',
+    'populate_common_sheet',
     'load_patient_data',
     'load_main_diseases',
     'load_sheet_names',

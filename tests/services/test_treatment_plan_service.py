@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from models.patient_info import PatientInfo
-from services.treatment_plan_service import TreatmentPlanGenerator
+from services.treatment_plan_service import generate_plan, populate_common_sheet
 
 
 @pytest.fixture
@@ -110,7 +110,7 @@ class TestTreatmentPlanGenerator:
         mock_image.return_value = mock_image_instance
 
         # テスト実行
-        TreatmentPlanGenerator.generate_plan(sample_patient_info, 'test.xlsm')
+        generate_plan(sample_patient_info, 'test.xlsm')
 
         # 検証
         mock_load_wb.assert_called_once()
@@ -123,7 +123,7 @@ class TestTreatmentPlanGenerator:
         mock_sheet = MagicMock()
 
         # メソッド実行
-        TreatmentPlanGenerator.populate_common_sheet(mock_sheet, sample_patient_info)
+        populate_common_sheet(mock_sheet, sample_patient_info)
 
         # 検証: 主要なフィールドが設定されているか
         assert mock_sheet.__setitem__.call_count > 0
@@ -148,7 +148,7 @@ class TestTreatmentPlanGenerator:
         sheet_mock = MagicMock()
         sheet_mock.__setitem__.side_effect = mock_setitem
 
-        TreatmentPlanGenerator.populate_common_sheet(sheet_mock, sample_patient_info)
+        populate_common_sheet(sheet_mock, sample_patient_info)
 
         # 主要フィールドの検証
         assert mock_sheet["B2"] == 12345  # patient_id
@@ -175,7 +175,7 @@ class TestTreatmentPlanGenerator:
         sheet_mock = MagicMock()
         sheet_mock.__setitem__.side_effect = mock_setitem
 
-        TreatmentPlanGenerator.populate_common_sheet(sheet_mock, patient)
+        populate_common_sheet(sheet_mock, patient)
 
         assert mock_sheet["B30"] is True  # nonsmoker
         assert mock_sheet["B31"] is False  # smoking_cessation
@@ -198,7 +198,7 @@ class TestTreatmentPlanGenerator:
         sheet_mock = MagicMock()
         sheet_mock.__setitem__.side_effect = mock_setitem
 
-        TreatmentPlanGenerator.populate_common_sheet(sheet_mock, patient)
+        populate_common_sheet(sheet_mock, patient)
 
         assert mock_sheet["B6"] == date(1990, 3, 20)  # birthdate
         assert mock_sheet["B7"] == date(2025, 2, 15)  # issue_date
@@ -221,7 +221,7 @@ class TestTreatmentPlanGenerator:
         sheet_mock = MagicMock()
         sheet_mock.__setitem__.side_effect = mock_setitem
 
-        TreatmentPlanGenerator.populate_common_sheet(sheet_mock, patient)
+        populate_common_sheet(sheet_mock, patient)
 
         assert mock_sheet["B21"] == "野菜中心"
         assert mock_sheet["B22"] == "塩分制限"
@@ -248,7 +248,7 @@ class TestTreatmentPlanGenerator:
         sheet_mock = MagicMock()
         sheet_mock.__setitem__.side_effect = mock_setitem
 
-        TreatmentPlanGenerator.populate_common_sheet(sheet_mock, patient)
+        populate_common_sheet(sheet_mock, patient)
 
         assert mock_sheet["B25"] == "ジョギング"
         assert mock_sheet["B26"] == "40分"
@@ -274,7 +274,7 @@ class TestTreatmentPlanGenerator:
         sheet_mock = MagicMock()
         sheet_mock.__setitem__.side_effect = mock_setitem
 
-        TreatmentPlanGenerator.populate_common_sheet(sheet_mock, patient)
+        populate_common_sheet(sheet_mock, patient)
 
         assert mock_sheet["B2"] == 999
         assert mock_sheet["B3"] is None
@@ -312,7 +312,7 @@ class TestTreatmentPlanGenerator:
         mock_barcode_config.get.return_value = 'B2'
         mock_config.__getitem__.return_value = mock_barcode_config
 
-        TreatmentPlanGenerator.generate_plan(patient, 'test.xlsm')
+        generate_plan(patient, 'test.xlsm')
 
         # ファイル保存が呼ばれたことを確認
         assert mock_wb.save.call_count == 1

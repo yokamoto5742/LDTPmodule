@@ -60,77 +60,75 @@ COMMON_SHEET_CELL_MAP: list[tuple[str, str]] = [
 ]
 
 
-class TreatmentPlanGenerator:
-    @staticmethod
-    def generate_plan(patient_info, file_name):
-        del file_name
-        template_path = config.get("Paths", "template_path")
-        output_path = config.get("Paths", "output_path")
+def generate_plan(patient_info, file_name) -> None:
+    del file_name
+    template_path = config.get("Paths", "template_path")
+    output_path = config.get("Paths", "output_path")
 
-        document_code = TreatmentPlanGenerator._build_document_code(patient_info)
-        new_file_name = f"{document_code}.xlsm"
-        file_path = os.path.join(output_path, new_file_name)
+    document_code = _build_document_code(patient_info)
+    new_file_name = f"{document_code}.xlsm"
+    file_path = os.path.join(output_path, new_file_name)
 
-        workbook = load_workbook(template_path, keep_vba=True)
-        TreatmentPlanGenerator.populate_common_sheet(workbook["共通情報"], patient_info)
+    workbook = load_workbook(template_path, keep_vba=True)
+    populate_common_sheet(workbook["共通情報"], patient_info)
 
-        options = TreatmentPlanGenerator._build_barcode_options()
-        buffers = [
-            TreatmentPlanGenerator._add_barcode_to_sheet(workbook["初回用"], document_code, options),
-            TreatmentPlanGenerator._add_barcode_to_sheet(workbook["継続用"], document_code, options),
-        ]
+    options = _build_barcode_options()
+    buffers = [
+        _add_barcode_to_sheet(workbook["初回用"], document_code, options),
+        _add_barcode_to_sheet(workbook["継続用"], document_code, options),
+    ]
 
-        TreatmentPlanGenerator._activate_target_sheet(workbook, patient_info.creation_count)
+    _activate_target_sheet(workbook, patient_info.creation_count)
 
-        workbook.save(file_path)
+    workbook.save(file_path)
 
-        for buffer in buffers:
-            buffer.close()
+    for buffer in buffers:
+        buffer.close()
 
-        time.sleep(0.1)
-        os.startfile(file_path)
+    time.sleep(0.1)
+    os.startfile(file_path)
 
-    @staticmethod
-    def _build_document_code(patient_info) -> str:
-        patient_id = str(patient_info.patient_id).zfill(9)
-        department_id = str(patient_info.department_id).zfill(3)
-        doctor_id = str(patient_info.doctor_id).zfill(5)
-        issue_date = patient_info.issue_date.strftime("%Y%m%d")
-        current_time = datetime.now().strftime("%H%M%S")
-        return f"{patient_id}{DOCUMENT_NUMBER}{department_id}{doctor_id}{issue_date}{current_time}"
 
-    @staticmethod
-    def _build_barcode_options() -> dict[str, Any]:
-        return {
-            'write_text': barcode_config.getboolean('write_text', False),
-            'module_height': barcode_config.getfloat('module_height', 15),
-            'module_width': barcode_config.getfloat('module_width', 0.25),
-            'quiet_zone': barcode_config.getint('quiet_zone', 1),
-        }
+def populate_common_sheet(common_sheet, patient_info) -> None:
+    for cell, attr in COMMON_SHEET_CELL_MAP:
+        common_sheet[cell] = getattr(patient_info, attr)
 
-    @staticmethod
-    def _add_barcode_to_sheet(sheet: Worksheet, data: str, options: dict) -> BytesIO:
-        barcode = Code128(data, writer=ImageWriter())
-        buffer = BytesIO()
-        barcode.write(buffer, options=options)
-        buffer.seek(0)  # 重要: ポインタを先頭に戻す
-        img = Image(buffer)
-        img.width = barcode_config.getint('image_width', 200)
-        img.height = barcode_config.getint('image_height', 30)
-        sheet.add_image(img, barcode_config.get('image_position', 'B2'))
-        return buffer
 
-    @staticmethod
-    def _activate_target_sheet(workbook: Workbook, creation_count: int) -> None:
-        for sheet in workbook.worksheets:
-            sheet.sheet_view.tabSelected = False
+def _build_document_code(patient_info) -> str:
+    patient_id = str(patient_info.patient_id).zfill(9)
+    department_id = str(patient_info.department_id).zfill(3)
+    doctor_id = str(patient_info.doctor_id).zfill(5)
+    issue_date = patient_info.issue_date.strftime("%Y%m%d")
+    current_time = datetime.now().strftime("%H%M%S")
+    return f"{patient_id}{DOCUMENT_NUMBER}{department_id}{doctor_id}{issue_date}{current_time}"
 
-        target_name = "初回用" if creation_count == 1 else "継続用"
-        ws_plan = workbook[target_name]
-        ws_plan.sheet_view.tabSelected = True
-        workbook.active = ws_plan
 
-    @staticmethod
-    def populate_common_sheet(common_sheet, patient_info):
-        for cell, attr in COMMON_SHEET_CELL_MAP:
-            common_sheet[cell] = getattr(patient_info, attr)
+def _build_barcode_options() -> dict[str, Any]:
+    return {
+        'write_text': barcode_config.getboolean('write_text', False),
+        'module_height': barcode_config.getfloat('module_height', 15),
+        'module_width': barcode_config.getfloat('module_width', 0.25),
+        'quiet_zone': barcode_config.getint('quiet_zone', 1),
+    }
+
+
+def _add_barcode_to_sheet(sheet: Worksheet, data: str, options: dict) -> BytesIO:
+    barcode = Code128(data, writer=ImageWriter())
+    buffer = BytesIO()
+    barcode.write(buffer, options=options)
+    buffer.seek(0)  # 重要: ポインタを先頭に戻す
+    img = Image(buffer)
+    img.width = barcode_config.getint('image_width', 200)
+    img.height = barcode_config.getint('image_height', 30)
+    sheet.add_image(img, barcode_config.get('image_position', 'B2'))
+    return buffer
+
+
+def _activate_target_sheet(workbook: Workbook, creation_count: int) -> None:
+    for sheet in workbook.worksheets:
+        sheet.sheet_view.tabSelected = False
+
+    target_name = "初回用" if creation_count == 1 else "継続用"
+    ws_plan = workbook[target_name]
+    ws_plan.sheet_view.tabSelected = True
+    workbook.active = ws_plan

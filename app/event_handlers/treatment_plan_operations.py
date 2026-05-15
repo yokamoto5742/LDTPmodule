@@ -3,7 +3,7 @@ from typing import Any
 
 from database import get_session_factory
 from models import PatientInfo
-from services.treatment_plan_service import TreatmentPlanGenerator
+from services.treatment_plan_service import generate_plan
 from utils.date_utils import calculate_issue_date_age
 
 Session = get_session_factory()
@@ -40,7 +40,7 @@ class TreatmentPlanOperationsMixin:
             session.commit()
             
             # 計画書を生成（セッションを閉じる前に実行）
-            TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
+            generate_plan(patient_info, "LDTPform")
             
             # セッションを閉じる
             session.close()
@@ -129,7 +129,7 @@ class TreatmentPlanOperationsMixin:
         try:
             patient_info = self.create_treatment_plan_object(
                 p_id, doctor_id, doctor_name, department, department_id, patients_df)
-            TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
+            generate_plan(patient_info, "LDTPform")
         except ValueError as ve:
             self.dialog_manager.show_error_message(str(ve))
 
